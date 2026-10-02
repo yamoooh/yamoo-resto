@@ -223,15 +223,13 @@ export const UniverseCatalogue = () => {
       <link rel="canonical" href={`https://www.yamooh.com/${universe.slug}${subSlug ? `/${subSlug}` : ""}`} />
 
       {/* 1. HERO SECTION DE L'UNIVERS */}
-      <section className="bg-[#1E3A2B] text-white py-14 lg:py-20 relative overflow-hidden">
-        {/* Background Image avec superposition sombre professionnelle */}
+      <section className="relative text-white py-14 lg:py-24 overflow-hidden">
+        {/* Background Image sans filtre ni opacité (100% visible) */}
         <img
           src={currentSub?.image || universe.image}
           alt={currentSub ? currentSub.name : universe.name}
-          className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.38] scale-105 transition-transform duration-1000"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1E3A2B] via-[#1E3A2B]/85 to-[#1E3A2B]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A2B] via-transparent to-black/30" />
 
         <div className="container-tight relative z-10">
           <div className="mb-4">
@@ -244,22 +242,22 @@ export const UniverseCatalogue = () => {
             />
           </div>
 
-          <div className="max-w-3xl space-y-4">
+          <div className="max-w-2xl bg-[#1E3A2B]/80 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-white/15 shadow-2xl space-y-4">
             <div className="flex items-center gap-2">
-              <span className="inline-block bg-[#F2B705]/20 text-[#F2B705] px-3.5 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider border border-[#F2B705]/30 backdrop-blur-md">
+              <span className="inline-block bg-[#F2B705] text-[#1E3A2B] px-3.5 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider shadow-sm">
                 {universe.badge}
               </span>
-              <span className="text-xs font-mono text-white/70">
+              <span className="text-xs font-mono text-white/90 font-bold">
                 UNIVERS {universe.number}
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black tracking-tight leading-tight">
               {currentSub ? currentSub.name : universe.name}
             </h1>
-            <p className="text-white/90 text-base sm:text-lg leading-relaxed max-w-2xl font-light">
+            <p className="text-white/95 text-base sm:text-lg leading-relaxed font-normal">
               {currentSub ? currentSub.shortDesc : universe.heroDescription}
             </p>
-            <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-[#F2B705]">
+            <div className="pt-2 flex items-center gap-2 text-xs font-bold text-[#F2B705]">
               <span>📍 Fait maison chaque matin — Douala, Pharmacie Kotto</span>
             </div>
           </div>
