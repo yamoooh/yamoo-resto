@@ -42,7 +42,7 @@ export const UNIVERSES: Universe[] = [
     heroTitle: "Petit-déjeuner, Goûters & Pauses Équipe à Douala",
     heroDescription:
       "Des formules complètes, des douceurs artisanales faites maison chaque matin et une gamme brunch généreuse pour bien commencer vos journées ou dynamiser vos pauses d'affaires.",
-    image: "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=900&q=80",
+    image: "/assets/univers-petit-dejeuner-banner.jpg",
     badge: "Matin & Pause Gourmande",
     color: "#E2725B",
     subRubrics: [
@@ -51,7 +51,7 @@ export const UNIVERSES: Universe[] = [
         slug: "formules",
         name: "Les Formules",
         shortDesc: "Packs complets matinaux individuels & pour équipes de bureau.",
-        image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+        image: "/assets/univers-petit-dejeuner-banner.jpg",
         categoryFilter: ["Petit-déjeuner"],
         subCategoryFilter: ["Formules"],
       },

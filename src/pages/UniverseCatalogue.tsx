@@ -223,7 +223,16 @@ export const UniverseCatalogue = () => {
       <link rel="canonical" href={`https://www.yamooh.com/${universe.slug}${subSlug ? `/${subSlug}` : ""}`} />
 
       {/* 1. HERO SECTION DE L'UNIVERS */}
-      <section className="bg-[#1E3A2B] text-white py-12 lg:py-16 relative overflow-hidden">
+      <section className="bg-[#1E3A2B] text-white py-14 lg:py-20 relative overflow-hidden">
+        {/* Background Image avec superposition sombre professionnelle */}
+        <img
+          src={currentSub?.image || universe.image}
+          alt={currentSub ? currentSub.name : universe.name}
+          className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.38] scale-105 transition-transform duration-1000"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1E3A2B] via-[#1E3A2B]/85 to-[#1E3A2B]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A2B] via-transparent to-black/30" />
+
         <div className="container-tight relative z-10">
           <div className="mb-4">
             <Breadcrumb
@@ -235,36 +244,23 @@ export const UniverseCatalogue = () => {
             />
           </div>
 
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="inline-block bg-white/10 text-[#F2B705] px-3.5 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider border border-white/15">
-                  {universe.badge}
-                </span>
-                <span className="text-xs font-mono text-white/60">
-                  UNIVERS {universe.number}
-                </span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black tracking-tight leading-tight">
-                {currentSub ? currentSub.name : universe.name}
-              </h1>
-              <p className="text-white/85 text-base sm:text-lg leading-relaxed max-w-2xl font-light">
-                {currentSub ? currentSub.shortDesc : universe.heroDescription}
-              </p>
+          <div className="max-w-3xl space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-block bg-[#F2B705]/20 text-[#F2B705] px-3.5 py-1 rounded-full text-xs font-mono font-black uppercase tracking-wider border border-[#F2B705]/30 backdrop-blur-md">
+                {universe.badge}
+              </span>
+              <span className="text-xs font-mono text-white/70">
+                UNIVERS {universe.number}
+              </span>
             </div>
-
-            <div className="lg:col-span-4 hidden lg:block">
-              <div className="rounded-3xl overflow-hidden shadow-2xl border-2 border-white/10 relative aspect-4/3">
-                <img
-                  src={currentSub?.image || universe.image}
-                  alt={currentSub ? currentSub.name : universe.name}
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-xs font-bold text-white/90">
-                  📍 Fait maison chaque matin — Douala, Pharmacie Kotto
-                </div>
-              </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black tracking-tight leading-tight">
+              {currentSub ? currentSub.name : universe.name}
+            </h1>
+            <p className="text-white/90 text-base sm:text-lg leading-relaxed max-w-2xl font-light">
+              {currentSub ? currentSub.shortDesc : universe.heroDescription}
+            </p>
+            <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-[#F2B705]">
+              <span>📍 Fait maison chaque matin — Douala, Pharmacie Kotto</span>
             </div>
           </div>
         </div>
