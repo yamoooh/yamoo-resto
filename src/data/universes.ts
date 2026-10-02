@@ -69,7 +69,7 @@ export const UNIVERSES: Universe[] = [
         slug: "brunch",
         name: "Gamme Brunch",
         shortDesc: "Grandes assiettes brunch généreuses : Signature YAMOOH & Veggie Vitalité.",
-        image: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80",
+        image: "/assets/brunch-yammoh-signature.jpg",
         categoryFilter: ["Brunch"],
       },
     ],
