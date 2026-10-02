@@ -49,7 +49,7 @@ export const menu: MenuItem[] = [
     description: "Salade gourmande au jambon de dinde, parmesan affiné, tomates cerises et croûtons dorés.",
     category: "Salades",
     signature: true,
-    image: "/assets/salade-classic-B-4lDVb2.jpg",
+    image: "/assets/salade-iberique.jpg",
     badge: "Signature du Chef",
     slogan: "L'élégance méditerranéenne",
     concept: "Inspirée de la haute gastronomie du sud de l'Europe, L'Ibèrique combine la délicatesse du jambon de dinde sélectionné avec le caractère salé et corsé du parmesan affiné 12 mois. Une texture croquante et fondante parfaitement équilibrée.",
