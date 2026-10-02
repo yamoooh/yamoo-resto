@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: "Epilogue", Georgia, serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 150 15% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 150 15% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 150 15% 12%;
+  --primary: 22 95% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 45% 94%;
+  --secondary-foreground: 150 20% 18%;
+  --muted: 38 30% 96%;
+  --muted-foreground: 150 8% 38%;
+  --accent: 142 55% 32%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 75% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 38 25% 88%;
+  --input: 38 25% 88%;
+  --ring: 22 95% 55%;
+
+  --shadow-soft: 0 10px 30px -10px rgba(217, 107, 67, 0.25);
+  --shadow-card: 0 4px 20px -6px rgba(30, 58, 43, 0.08);
+  --shadow-elevated: 0 20px 50px -15px rgba(30, 58, 43, 0.2);
+}
+
+.dark {
+  --background: 150 20% 8%;
+  --foreground: 40 30% 96%;
+  --card: 150 18% 11%;
+  --card-foreground: 40 30% 96%;
+  --popover: 150 18% 11%;
+  --popover-foreground: 40 30% 96%;
+  --primary: 142 60% 50%;
+  --primary-foreground: 150 20% 8%;
+  --secondary: 150 15% 16%;
+  --secondary-foreground: 40 30% 96%;
+  --muted: 150 15% 16%;
+  --muted-foreground: 140 10% 65%;
+  --accent: 28 95% 62%;
+  --accent-foreground: 150 20% 8%;
+  --border: 150 15% 18%;
+  --input: 150 15% 18%;
+  --ring: 142 60% 50%;
+}
+
+* {
+  box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Container utility */
+.container-tight {
+  width: 100%;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .container-tight {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-elevated {
+  box-shadow: var(--shadow-elevated);
+}
+
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-fade-up { animation: fade-up 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-marquee { display: inline-block; animation: marquee 30s linear infinite; }
+
+/* 3-video crossfade */
+@keyframes hero-video-fade-3a {
+  0%, 27.77% { opacity: 1; }
+  33.33%, 94.44% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes hero-video-fade-3b {
+  0%, 27.77% { opacity: 0; }
+  33.33%, 61.11% { opacity: 1; }
+  66.66%, 100% { opacity: 0; }
+}
+@keyframes hero-video-fade-3c {
+  0%, 61.11% { opacity: 0; }
+  66.66%, 94.44% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.hero-video-a { animation: hero-video-fade-3a 18s ease-in-out infinite; }
+.hero-video-b { animation: hero-video-fade-3b 18s ease-in-out infinite; }
+.hero-video-c { animation: hero-video-fade-3c 18s ease-in-out infinite; }
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: .55; }
+}
+.animate-pulse-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: .9; }
+  50% { transform: translateY(8px); opacity: .4; }
+}
+.animate-scroll-bounce { animation: scroll-bounce 1.8s ease-in-out infinite; }

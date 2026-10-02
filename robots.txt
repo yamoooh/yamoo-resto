@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /videos/
+Disallow: /auth
+Disallow: /account
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://yamooh.com/sitemap.xml
