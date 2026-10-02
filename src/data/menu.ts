@@ -948,7 +948,7 @@ export const menu: MenuItem[] = [
     price: 2500,
     description: "Biscuit sablé croustillant, crème cheesecake onctueuse parfumée au zeste de citron vert et compotée d'ananas Victoria rôti.",
     category: "Desserts",
-    image: "/assets/hero-salad-DenX4nTx.jpg",
+    image: "/assets/cheesecake-exotique-ananas-roti.jpg",
     composition: ["Crème cheesecake", "Ananas rôti à la vanille", "Sablé au beurre", "Zestes de combava"],
     allergens: ["Lait / Produits laitiers", "Gluten", "Œufs"],
     tags: ["Gourmandise", "Exotique"],
