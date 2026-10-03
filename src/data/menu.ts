@@ -979,7 +979,7 @@ export const menu: MenuItem[] = [
     price: 14000,
     description: "24 mini-wraps roulés : 8 au poulet épicé & avocat, 8 au thon frais & crudités, 8 végétariens au hummus maison et graines de courge.",
     category: "Cocktails",
-    image: "/assets/wrap-mexicain-B3n0KXUL.jpg",
+    image: "/assets/plateau-24-mini-wraps.jpg",
     badge: "Best-seller Cocktail",
     composition: ["8 Mini-wraps poulet", "8 Mini-wraps thon", "8 Mini-wraps veggie hummus"],
     allergens: ["Gluten", "Lait / Produits laitiers", "Poisson", "Sésame"],
