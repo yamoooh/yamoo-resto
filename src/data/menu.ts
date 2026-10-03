@@ -1094,7 +1094,7 @@ export const menu: MenuItem[] = [
     price: null, // Sur devis
     description: "Service de bar à cocktails de fruits frais pressés minute et mocktails floraux à l'hibiscus pour vos soirées, mariages et lancements à Douala.",
     category: "Boissons",
-    image: "/assets/citronnade-BGlYWEWk.jpg",
+    image: "/assets/bar-cocktails-fruits-evenementiel.jpg",
     badge: "Animation Bar",
     composition: ["Barman dédié", "Fruits frais du jour", "Verrerie cocktail", "Glaçons & pailles écologiques"],
     allergens: [],
