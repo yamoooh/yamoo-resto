@@ -993,7 +993,7 @@ export const menu: MenuItem[] = [
     price: 13500,
     description: "Assortiment de 24 mignardises sucrées pour cocktail : mini-cakes citron-gingembre tranchés, verrines chocolat-cacahuètes et brochettes de fruits frais.",
     category: "Cocktails",
-    image: "/assets/jus-fruit-ZSiyxNq1.jpg",
+    image: "/assets/plateau-24-mini-patisseries.jpg",
     badge: "Cocktail Sucré",
     composition: ["8 Mini-cakes citron-gingembre", "8 Verrines mousse chocolat", "8 Brochettes fruits frais"],
     allergens: ["Gluten", "Lait / Produits laitiers", "Œufs", "Arachides"],
