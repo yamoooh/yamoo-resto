@@ -23,6 +23,7 @@ import {
   Search
 } from "lucide-react";
 import GoogleMapLocation from "../components/GoogleMapLocation";
+import HeroSlider from "../components/HeroSlider";
 
 // Composant Petit Drapeau Cameroun (Vert / Rouge avec Étoile / Jaune)
 const CameroonFlag = () => (
@@ -62,80 +63,14 @@ export const Home = () => {
       <link rel="canonical" href="https://yamooh.com/" />
 
       {/* ==================================================================== */}
-      {/* 3. HERO PRINCIPAL IMMERSIF (SLIDESHOW VIDÉO YAMOOH) */}
+      {/* HERO SLIDER PREMIUM CINÉMATOGRAPHIQUE (3 SLIDES ÉDITORIAUX)           */}
       {/* ==================================================================== */}
-      <section className="relative w-full min-h-[85vh] lg:min-h-[88vh] flex items-center justify-center overflow-hidden bg-[#1E3A2B] text-white">
-        {/* Slideshow 3 Vidéos en arrière-plan */}
-        <div 
-          aria-hidden 
-          className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/assets/hero-salad-DenX4nTx.jpg')"
-          }}
-        >
-          <video
-            className="hero-video-a absolute inset-0 w-full h-full object-cover will-change-[opacity]"
-            src="/videos/video1.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          />
-          <video
-            className="hero-video-b absolute inset-0 w-full h-full object-cover will-change-[opacity]"
-            src="/videos/video2.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          />
-          <video
-            className="hero-video-c absolute inset-0 w-full h-full object-cover will-change-[opacity]"
-            src="/videos/video3.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          />
-          {/* Overlay sombre de lisibilité et profondeur */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/60" />
-        </div>
-
-        {/* Contenu Central du Hero */}
-        <div className="container-tight relative z-10 text-center max-w-4xl mx-auto px-4 py-20 lg:py-24 space-y-6">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 text-white px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-widest">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span>RESTAURANT & TRAITEUR À DOUALA</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight uppercase leading-[1.08] text-white drop-shadow-md">
-            RESTAURANT & TRAITEUR À DOUALA
-          </h1>
-
-          {/* Élément graphique discret aux couleurs du Cameroun */}
-          <div className="flex justify-center">
-            <CameroonFlag />
-          </div>
-
-          <p className="text-base sm:text-lg lg:text-xl text-white/95 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-sm">
-            YAMOOH vous propose à Douala une cuisine fraîche et gourmande pour vos repas du quotidien, vos déjeuners au bureau et vos événements : salades, plats, sandwichs, plateaux repas, cocktails, buffets et boissons.
-          </p>
-        </div>
-
-        {/* Indicateur de Scroll */}
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/75 select-none pointer-events-none">
-          <span className="text-[10px] tracking-widest font-mono uppercase">Scroll</span>
-          <ChevronDown size={18} className="animate-scroll-bounce text-[#F2B705]" />
-        </div>
-      </section>
+      <HeroSlider />
 
       {/* ==================================================================== */}
       {/* 4. BLOC COMMANDE / DEVIS (Panneau de Service Horizontal) */}
       {/* ==================================================================== */}
-      <section className="relative z-20 -mt-10 sm:-mt-14 mb-12">
+      <section className="relative z-20 -mt-6 sm:-mt-10 mb-12">
         <div className="container-tight">
           <div className="bg-white border border-border/80 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-elevated backdrop-blur-md">
             <div className="grid lg:grid-cols-12 gap-8 items-center">
