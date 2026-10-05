@@ -23,13 +23,16 @@ import {
   CalendarCheck,
   FileText
 } from "lucide-react";
-import { menu, MenuItem } from "../data/menu";
+import { MenuItem } from "../data/menu";
 import { UNIVERSES } from "../data/universes";
 import { useCart } from "../contexts/CartContext";
+import { useData } from "../contexts/DataContext";
 import Breadcrumb from "../components/Breadcrumb";
 
 export const NotreCarte = () => {
   const { add } = useCart();
+  const { getPublicProducts } = useData();
+  const products = getPublicProducts();
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
 
@@ -54,7 +57,7 @@ export const NotreCarte = () => {
     setTimeout(() => setAddedItem(null), 1800);
   };
 
-  const signatures = menu.filter((item) => item.signature);
+  const signatures = products.filter((item) => item.signature);
 
   return (
     <>

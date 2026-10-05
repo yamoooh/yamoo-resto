@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { menu, MenuItem } from "../data/menu";
+import { MenuItem } from "../data/menu";
 import { useCart } from "../contexts/CartContext";
+import { useData } from "../contexts/DataContext";
 import { 
   Sparkles, 
   ChefHat, 
@@ -18,10 +19,12 @@ import {
 
 export const Signature = () => {
   const { add } = useCart();
+  const { getPublicProducts } = useData();
+  const products = getPublicProducts();
   const [addedItem, setAddedItem] = useState<string | null>(null);
 
-  const signatures = menu.filter((m) => m.signature);
-  const sauces = menu.filter((m) => m.category === "Sauces");
+  const signatures = products.filter((m) => m.signature);
+  const sauces = products.filter((m) => m.category === "Sauces");
 
   const handleAddToCart = (item: MenuItem) => {
     add({

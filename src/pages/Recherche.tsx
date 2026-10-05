@@ -12,12 +12,14 @@ import {
   Sparkles,
   MapPin
 } from "lucide-react";
-import { menu } from "../data/menu";
+import { useData } from "../contexts/DataContext";
 import { blogPosts } from "../data/blog";
 import Breadcrumb from "../components/Breadcrumb";
 
 export const Recherche = () => {
   const [query, setQuery] = useState("");
+  const { getPublicProducts } = useData();
+  const products = getPublicProducts();
 
   const services = [
     { title: "Plateaux Repas d'Entreprise", desc: "Formules repas individuelles pour réunions, comités et séminaires à Douala.", link: "/offres-traiteur/entreprises" },
@@ -55,7 +57,7 @@ export const Recherche = () => {
 
     const q = query.toLowerCase().trim();
 
-    const matchedProducts = menu.filter(
+    const matchedProducts = products.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
         m.description.toLowerCase().includes(q) ||

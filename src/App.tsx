@@ -1,6 +1,8 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { DataProvider } from "./contexts/DataContext";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import Layout from "./components/Layout";
 
 // Pages Principales & Existantes
@@ -68,129 +70,173 @@ import MentionsLegales from "./pages/legal/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
 import PolitiqueCookies from "./pages/legal/PolitiqueCookies";
 
+// Back-Office Administrateur YAMOOH
+import AdminLayout from "./layouts/AdminLayout";
+import { AdminLogin } from "./pages/admin/AdminLogin";
+import { AdminFirstSetup } from "./pages/admin/AdminFirstSetup";
+import { Dashboard } from "./pages/admin/Dashboard";
+import { ProductsList } from "./pages/admin/ProductsList";
+import { ProductEdit } from "./pages/admin/ProductEdit";
+import { CategoriesList } from "./pages/admin/CategoriesList";
+import { FormulasList } from "./pages/admin/FormulasList";
+import { SignaturesList } from "./pages/admin/SignaturesList";
+import { IngredientsList } from "./pages/admin/IngredientsList";
+import { CollectionsList } from "./pages/admin/CollectionsList";
+import { MediaLibrary } from "./pages/admin/MediaLibrary";
+import { SiteContent } from "./pages/admin/SiteContent";
+import { CustomersList } from "./pages/admin/CustomersList";
+import { Marketing } from "./pages/admin/Marketing";
+import { AdminsList } from "./pages/admin/AdminsList";
+import { ActivityLogs } from "./pages/admin/ActivityLogs";
+
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<Layout />}>
-              {/* ACCUEIL & CATALOGUE */}
-              <Route path="/" element={<Home />} />
-              <Route path="/notre-carte" element={<NotreCarte />} />
-              <Route path="/notre-carte/:slug" element={<ProductDetail />} />
-              <Route path="/carte" element={<Navigate to="/notre-carte" replace />} />
-              <Route path="/signature" element={<Signature />} />
-              <Route path="/builder" element={<Builder />} />
-              <Route path="/carte-de-saison" element={<SeasonalMenu />} />
-              <Route path="/cart" element={<Cart />} />
+    <DataProvider>
+      <AdminAuthProvider>
+        <AuthProvider>
+          <CartProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* 1. ADMINISTRATION BACK-OFFICE YAMOOH (Layout indépendant) */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/setup" element={<AdminFirstSetup />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="products" element={<ProductsList />} />
+                  <Route path="products/new" element={<ProductEdit />} />
+                  <Route path="products/:id" element={<ProductEdit />} />
+                  <Route path="categories" element={<CategoriesList />} />
+                  <Route path="formulas" element={<FormulasList />} />
+                  <Route path="signatures" element={<SignaturesList />} />
+                  <Route path="ingredients" element={<IngredientsList />} />
+                  <Route path="collections" element={<CollectionsList />} />
+                  <Route path="media" element={<MediaLibrary />} />
+                  <Route path="content" element={<SiteContent />} />
+                  <Route path="customers" element={<CustomersList />} />
+                  <Route path="marketing" element={<Marketing />} />
+                  <Route path="admins" element={<AdminsList />} />
+                  <Route path="logs" element={<ActivityLogs />} />
+                </Route>
 
-              {/* 7 GRANDS UNIVERS COMMERCIAUX TOUT&BON */}
-              <Route path="/petit-dejeuner" element={<UniverseCatalogue />} />
-              <Route path="/petit-dejeuner/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/salades-plats-sandwichs" element={<UniverseCatalogue />} />
-              <Route path="/salades-plats-sandwichs/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/plateaux-repas" element={<UniverseCatalogue />} />
-              <Route path="/plateaux-repas/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/cocktail" element={<UniverseCatalogue />} />
-              <Route path="/cocktail/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/cocktail-repas-debout" element={<UniverseCatalogue />} />
-              <Route path="/cocktail-repas-debout/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/buffet" element={<UniverseCatalogue />} />
-              <Route path="/buffet/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/buffet-repas-assis" element={<UniverseCatalogue />} />
-              <Route path="/buffet-repas-assis/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/boissons" element={<UniverseCatalogue />} />
-              <Route path="/boissons/:subSlug" element={<UniverseCatalogue />} />
-              <Route path="/collection-du-moment" element={<UniverseCatalogue />} />
-              <Route path="/collection-du-moment/:subSlug" element={<UniverseCatalogue />} />
+                {/* 2. SITE PUBLIC YAMOOH */}
+                <Route element={<Layout />}>
+                  {/* ACCUEIL & CATALOGUE */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/notre-carte" element={<NotreCarte />} />
+                  <Route path="/notre-carte/:slug" element={<ProductDetail />} />
+                  <Route path="/carte" element={<Navigate to="/notre-carte" replace />} />
+                  <Route path="/signature" element={<Signature />} />
+                  <Route path="/builder" element={<Builder />} />
+                  <Route path="/carte-de-saison" element={<SeasonalMenu />} />
+                  <Route path="/cart" element={<Cart />} />
 
-              {/* OFFRES TRAITEUR */}
-              <Route path="/offres-traiteur" element={<OffresTraiteur />} />
-              <Route path="/offres-traiteur/entreprises" element={<OffreEntreprises />} />
-              <Route path="/offres-traiteur/particuliers" element={<OffreParticuliers />} />
-              <Route path="/offres-traiteur/evenements" element={<OffreEvenements />} />
-              <Route path="/offres-traiteur/informations-pratiques" element={<InformationsPratiques />} />
-              <Route path="/offres-traiteur/faq" element={<FAQTraiteur />} />
+                  {/* 7 GRANDS UNIVERS COMMERCIAUX TOUT&BON */}
+                  <Route path="/petit-dejeuner" element={<UniverseCatalogue />} />
+                  <Route path="/petit-dejeuner/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/salades-plats-sandwichs" element={<UniverseCatalogue />} />
+                  <Route path="/salades-plats-sandwichs/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/plateaux-repas" element={<UniverseCatalogue />} />
+                  <Route path="/plateaux-repas/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/cocktail" element={<UniverseCatalogue />} />
+                  <Route path="/cocktail/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/cocktail-repas-debout" element={<UniverseCatalogue />} />
+                  <Route path="/cocktail-repas-debout/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/buffet" element={<UniverseCatalogue />} />
+                  <Route path="/buffet/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/buffet-repas-assis" element={<UniverseCatalogue />} />
+                  <Route path="/buffet-repas-assis/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/boissons" element={<UniverseCatalogue />} />
+                  <Route path="/boissons/:subSlug" element={<UniverseCatalogue />} />
+                  <Route path="/collection-du-moment" element={<UniverseCatalogue />} />
+                  <Route path="/collection-du-moment/:subSlug" element={<UniverseCatalogue />} />
 
-              {/* SERVICES ÉVÉNEMENTIELS */}
-              <Route path="/services-evenementiels" element={<EventServices />} />
-              <Route path="/services-evenementiels/mariages" element={<Mariages />} />
-              <Route path="/services-evenementiels/anniversaires" element={<Anniversaires />} />
-              <Route path="/services-evenementiels/seminaires" element={<Seminaires />} />
-              <Route path="/services-evenementiels/soirees-privees" element={<SoireesPrivees />} />
-              <Route path="/services-evenementiels/lancements" element={<Lancements />} />
-              <Route path="/services-evenementiels/lancements-produits" element={<Lancements />} />
-              <Route path="/services-evenementiels/entreprises" element={<EntreprisesEvents />} />
-              <Route path="/services-evenementiels/evenements-entreprise" element={<EntreprisesEvents />} />
-              <Route path="/services-evenementiels/accompagnement" element={<Accompagnement />} />
-              <Route path="/services-evenementiels/formules" element={<FormulesEvent />} />
-              <Route path="/services-evenementiels/inspirations" element={<Inspirations />} />
-              <Route path="/services-evenementiels/galerie" element={<Inspirations />} />
+                  {/* OFFRES TRAITEUR */}
+                  <Route path="/offres-traiteur" element={<OffresTraiteur />} />
+                  <Route path="/offres-traiteur/entreprises" element={<OffreEntreprises />} />
+                  <Route path="/offres-traiteur/particuliers" element={<OffreParticuliers />} />
+                  <Route path="/offres-traiteur/evenements" element={<OffreEvenements />} />
+                  <Route path="/offres-traiteur/informations-pratiques" element={<InformationsPratiques />} />
+                  <Route path="/offres-traiteur/faq" element={<FAQTraiteur />} />
 
-              {/* UNIVERS YAMMOH */}
-              <Route path="/yamooh" element={<YamoohHub />} />
-              <Route path="/yamooh/a-propos" element={<YamoohAPropos />} />
-              <Route path="/yamooh/notre-histoire" element={<YamoohHistoire />} />
-              <Route path="/yamooh/histoire" element={<Navigate to="/yamooh/notre-histoire" replace />} />
-              <Route path="/yamooh/mission-valeurs" element={<YamoohMissionValeurs />} />
-              <Route path="/yamooh/engagements" element={<YamoohEngagements />} />
-              <Route path="/yamooh/equipe" element={<YamoohEquipe />} />
-              <Route path="/yamooh/fonctionnement" element={<YamoohFonctionnement />} />
-              <Route path="/yamooh/franchise" element={<YamoohFranchise />} />
-              <Route path="/yamooh/etablissements" element={<YamoohEtablissements />} />
-              <Route path="/yamooh/realisations" element={<YamoohRealisations />} />
+                  {/* SERVICES ÉVÉNEMENTIELS */}
+                  <Route path="/services-evenementiels" element={<EventServices />} />
+                  <Route path="/services-evenementiels/mariages" element={<Mariages />} />
+                  <Route path="/services-evenementiels/anniversaires" element={<Anniversaires />} />
+                  <Route path="/services-evenementiels/seminaires" element={<Seminaires />} />
+                  <Route path="/services-evenementiels/soirees-privees" element={<SoireesPrivees />} />
+                  <Route path="/services-evenementiels/lancements" element={<Lancements />} />
+                  <Route path="/services-evenementiels/lancements-produits" element={<Lancements />} />
+                  <Route path="/services-evenementiels/entreprises" element={<EntreprisesEvents />} />
+                  <Route path="/services-evenementiels/evenements-entreprise" element={<EntreprisesEvents />} />
+                  <Route path="/services-evenementiels/accompagnement" element={<Accompagnement />} />
+                  <Route path="/services-evenementiels/formules" element={<FormulesEvent />} />
+                  <Route path="/services-evenementiels/inspirations" element={<Inspirations />} />
+                  <Route path="/services-evenementiels/galerie" element={<Inspirations />} />
 
-              {/* Anciennes routes d'accès direct vers Yamooh */}
-              <Route path="/a-propos" element={<Navigate to="/yamooh/a-propos" replace />} />
-              <Route path="/engagements" element={<Navigate to="/yamooh/engagements" replace />} />
-              <Route path="/comment-ca-marche" element={<Navigate to="/yamooh/fonctionnement" replace />} />
-              <Route path="/realisations" element={<Navigate to="/yamooh/realisations" replace />} />
-              <Route path="/franchise" element={<Navigate to="/yamooh/franchise" replace />} />
-              <Route path="/etablissements" element={<Navigate to="/yamooh/etablissements" replace />} />
+                  {/* UNIVERS YAMMOH */}
+                  <Route path="/yamooh" element={<YamoohHub />} />
+                  <Route path="/yamooh/a-propos" element={<YamoohAPropos />} />
+                  <Route path="/yamooh/notre-histoire" element={<YamoohHistoire />} />
+                  <Route path="/yamooh/histoire" element={<Navigate to="/yamooh/notre-histoire" replace />} />
+                  <Route path="/yamooh/mission-valeurs" element={<YamoohMissionValeurs />} />
+                  <Route path="/yamooh/engagements" element={<YamoohEngagements />} />
+                  <Route path="/yamooh/equipe" element={<YamoohEquipe />} />
+                  <Route path="/yamooh/fonctionnement" element={<YamoohFonctionnement />} />
+                  <Route path="/yamooh/franchise" element={<YamoohFranchise />} />
+                  <Route path="/yamooh/etablissements" element={<YamoohEtablissements />} />
+                  <Route path="/yamooh/realisations" element={<YamoohRealisations />} />
 
-              {/* BLOG */}
-              <Route path="/blog" element={<BlogHub />} />
-              <Route path="/blog/actualites" element={<BlogCategory />} />
-              <Route path="/blog/conseils-astuces" element={<BlogCategory />} />
-              <Route path="/blog/recettes-inspirations" element={<BlogCategory />} />
-              <Route path="/blog/evenements" element={<BlogCategory />} />
-              <Route path="/blog/:slug" element={<BlogPostDetail />} />
+                  {/* Anciennes routes d'accès direct vers Yamooh */}
+                  <Route path="/a-propos" element={<Navigate to="/yamooh/a-propos" replace />} />
+                  <Route path="/engagements" element={<Navigate to="/yamooh/engagements" replace />} />
+                  <Route path="/comment-ca-marche" element={<Navigate to="/yamooh/fonctionnement" replace />} />
+                  <Route path="/realisations" element={<Navigate to="/yamooh/realisations" replace />} />
+                  <Route path="/franchise" element={<Navigate to="/yamooh/franchise" replace />} />
+                  <Route path="/etablissements" element={<Navigate to="/yamooh/etablissements" replace />} />
 
-              {/* CONTACT, INFOS & SUPPORT */}
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/contact-aide" element={<ContactAide />} />
-              <Route path="/contact/informations-pratiques" element={<InformationsPratiques />} />
-              <Route path="/contact/plan-dacces" element={<PlanAcces />} />
-              <Route path="/plan-acces" element={<Navigate to="/contact/plan-dacces" replace />} />
-              <Route path="/plan-dacces" element={<Navigate to="/contact/plan-dacces" replace />} />
-              <Route path="/devis" element={<Devis />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/faq-traiteur" element={<FAQTraiteur />} />
-              <Route path="/allergenes" element={<Allergenes />} />
-              <Route path="/recherche" element={<Recherche />} />
+                  {/* BLOG */}
+                  <Route path="/blog" element={<BlogHub />} />
+                  <Route path="/blog/actualites" element={<BlogCategory />} />
+                  <Route path="/blog/conseils-astuces" element={<BlogCategory />} />
+                  <Route path="/blog/recettes-inspirations" element={<BlogCategory />} />
+                  <Route path="/blog/evenements" element={<BlogCategory />} />
+                  <Route path="/blog/:slug" element={<BlogPostDetail />} />
 
-              {/* AUTH & COMPTE */}
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+                  {/* CONTACT, INFOS & SUPPORT */}
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/contact-aide" element={<ContactAide />} />
+                  <Route path="/contact/informations-pratiques" element={<InformationsPratiques />} />
+                  <Route path="/contact/plan-dacces" element={<PlanAcces />} />
+                  <Route path="/plan-acces" element={<Navigate to="/contact/plan-dacces" replace />} />
+                  <Route path="/devis" element={<Devis />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/faq-traiteur" element={<FAQTraiteur />} />
+                  <Route path="/allergenes" element={<Allergenes />} />
+                  <Route path="/recherche" element={<Recherche />} />
 
-              {/* PAGES LÉGALES */}
-              <Route path="/cgv" element={<CGV />} />
-              <Route path="/mentions-legales" element={<MentionsLegales />} />
-              <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
-              <Route path="/politique-confidentialite" element={<Navigate to="/politique-de-confidentialite" replace />} />
-              <Route path="/confidentialite" element={<Navigate to="/politique-de-confidentialite" replace />} />
-              <Route path="/politique-de-cookies" element={<PolitiqueCookies />} />
-              <Route path="/cookies" element={<Navigate to="/politique-de-cookies" replace />} />
-            </Route>
+                  {/* AUTH & COMPTE */}
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+                  {/* PAGES LÉGALES */}
+                  <Route path="/cgv" element={<CGV />} />
+                  <Route path="/mentions-legales" element={<MentionsLegales />} />
+                  <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
+                  <Route path="/politique-confidentialite" element={<Navigate to="/politique-de-confidentialite" replace />} />
+                  <Route path="/confidentialite" element={<Navigate to="/politique-de-confidentialite" replace />} />
+                  <Route path="/politique-de-cookies" element={<PolitiqueCookies />} />
+                  <Route path="/cookies" element={<Navigate to="/politique-de-cookies" replace />} />
+                </Route>
+
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </AuthProvider>
+      </AdminAuthProvider>
+    </DataProvider>
   );
 }

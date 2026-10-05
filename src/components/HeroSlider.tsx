@@ -1,93 +1,38 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronRight, FileText, Utensils } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
+import { useData } from "../contexts/DataContext";
 
-interface SlideData {
-  id: number;
-  number: string;
-  image: string;
-  position: "left" | "right";
-  imageStyle: {
-    objectPosition?: string;
-    animationClass: string;
-  };
-  title: string;
-  description: string;
-  ctaPrimary: {
-    label: string;
-    to: string;
-  };
-  ctaSecondary?: {
-    label: string;
-    to: string;
-  };
-}
-
-const SLIDES: SlideData[] = [
-  {
-    id: 0,
-    number: "01",
-    image: "/assets/hero-slide-1.jpg",
-    position: "left",
-    imageStyle: {
-      objectPosition: "center 25%",
-      animationClass: "animate-hero-zoom-in",
-    },
-    title: "Et si chaque repas était préparé avec autant de soin que pour vous ?",
-    description:
-      "Chez YAMOOH, notre cuisine repose sur des produits frais, des recettes généreuses et une équipe qui met le goût au cœur de chaque préparation.",
-    ctaPrimary: {
-      label: "DÉCOUVRIR YAMOOH",
-      to: "/yamooh/a-propos",
-    },
-  },
-  {
-    id: 1,
-    number: "02",
-    image: "/assets/hero-slide-2.jpg",
-    position: "right",
-    imageStyle: {
-      objectPosition: "center 30%",
-      animationClass: "animate-hero-pan-h",
-    },
-    title: "Bien manger au bureau, sans perdre votre temps.",
-    description:
-      "Salades, plats, sandwichs, plateaux repas et boissons : YAMOOH vous accompagne au quotidien avec des repas frais et gourmands.",
-    ctaPrimary: {
-      label: "VOIR NOS OFFRES",
-      to: "/notre-carte",
-    },
-    ctaSecondary: {
-      label: "COMMANDER EN LIGNE",
-      to: "/builder",
-    },
-  },
-  {
-    id: 2,
-    number: "03",
-    image: "/assets/hero-slide-3.jpg",
-    position: "left",
-    imageStyle: {
-      objectPosition: "center 35%",
-      animationClass: "animate-hero-zoom-out",
-    },
-    title: "Votre événement mérite une cuisine à sa hauteur.",
-    description:
-      "Petits-déjeuners, cocktails, buffets, plateaux repas et prestations traiteur : YAMOOH s'occupe de vos moments professionnels et privés.",
-    ctaPrimary: {
-      label: "DEMANDER UN DEVIS",
-      to: "/devis",
-    },
-    ctaSecondary: {
-      label: "DÉCOUVRIR LE TRAITEUR",
-      to: "/offres-traiteur",
-    },
-  },
+const ANIMATION_CLASSES = [
+  "animate-hero-zoom-in",
+  "animate-hero-pan-h",
+  "animate-hero-zoom-out",
 ];
 
 const SLIDE_DURATION = 5000; // 5 secondes par slide (défilement automatique garanti)
 
 export const HeroSlider = () => {
+  const { siteContent } = useData();
+  const rawSlides = siteContent.heroSlides || [];
+
+  const slides = rawSlides.map((s, idx) => ({
+    ...s,
+    imageStyle: {
+      objectPosition: idx === 0 ? "center 25%" : idx === 1 ? "center 30%" : "center 35%",
+      animationClass: ANIMATION_CLASSES[idx % ANIMATION_CLASSES.length],
+    },
+    ctaPrimary: {
+      label: s.ctaPrimaryText || "DÉCOUVRIR YAMOOH",
+      to: s.ctaPrimaryLink || "/yamooh/a-propos",
+    },
+    ctaSecondary: s.ctaSecondaryText
+      ? {
+          label: s.ctaSecondaryText,
+          to: s.ctaSecondaryLink || "/notre-carte",
+        }
+      : undefined,
+  }));
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
 
@@ -102,10 +47,10 @@ export const HeroSlider = () => {
   }, []);
 
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
+    setCurrentSlide((prev) => (prev + 1) % (slides.length || 1));
     setProgress(0);
     startTimeRef.current = Date.now();
-  }, []);
+  }, [slides.length]);
 
   // Défilement automatique continu toutes les 5 secondes
   useEffect(() => {
@@ -141,7 +86,7 @@ export const HeroSlider = () => {
     >
       {/* Conteneur principal plein écran proportionnel */}
       <div className="relative w-full h-[580px] sm:h-[640px] md:h-[700px] lg:h-[740px] xl:h-[780px] max-h-[860px]">
-        {SLIDES.map((slide, index) => {
+        {slides.map((slide, index) => {
           const isActive = index === currentSlide;
 
           return (
@@ -228,7 +173,7 @@ export const HeroSlider = () => {
         <div className="absolute bottom-6 left-0 right-0 z-30 pointer-events-none">
           <div className="container-tight flex items-center justify-between">
             <div className="inline-flex items-center gap-4 sm:gap-6 bg-[#FAF8F5]/90 dark:bg-[#121E17]/90 backdrop-blur-md px-4 py-2 rounded-full border border-white/60 dark:border-white/10 shadow-lg pointer-events-auto">
-              {SLIDES.map((slide, index) => {
+              {slides.map((slide, index) => {
                 const isCurrent = index === currentSlide;
 
                 return (

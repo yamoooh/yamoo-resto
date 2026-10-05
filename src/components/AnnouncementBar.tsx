@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
 import { Sparkles, ArrowRight, UserPlus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { useData } from "../contexts/DataContext";
 
 export const AnnouncementBar = () => {
   const { user } = useAuth();
+  const { siteContent } = useData();
 
-  const messageText =
-    "Découvrez les offres YAMOOH : restaurant, traiteur, salades, plats, sandwichs, plateaux repas, cocktails, buffets et boissons. Créez votre compte et profitez d’une commande plus rapide, de vos informations enregistrées et d’un suivi facilité.";
+  const announcement = siteContent.announcementBar;
+  if (!announcement || !announcement.isActive) {
+    return null;
+  }
 
-  const ctaLink = user ? "/account" : "/auth?tab=register";
-  const ctaText = user ? "MON ESPACE CLIENT" : "CRÉER MON COMPTE";
+  const messageText = announcement.message;
+  const ctaLink = user ? "/account" : (announcement.ctaLink || "/auth?tab=register");
+  const ctaText = user ? "MON ESPACE CLIENT" : (announcement.ctaText || "CRÉER MON COMPTE");
 
   const renderTickerItem = (keyPrefix: string) => (
     <div key={keyPrefix} className="flex items-center gap-6 shrink-0 pr-10">

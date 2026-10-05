@@ -16,55 +16,18 @@ import {
   Utensils
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
-import { menu } from "../data/menu";
-
-// Ingrédients disponibles avec vraies images du code source
-const BASES = [
-  { id: "b-verte", name: "Salade Verte / Jeunes Pousses", desc: "Mélange croquant et rafraîchissant du matin", image: "/assets/laitue-ygyRIKjn.jpg", extraPrice: 0 },
-  { id: "b-pennes", name: "Pâtes Penne Al Dente", desc: "Pour un bol gourmand et énergétique", image: "/assets/pate-Col6eF1X.jpg", extraPrice: 0 },
-  { id: "b-riz", name: "Riz Parfumé & Quinoa", desc: "Riche en fibres et digeste", image: "/assets/riz-CVNADP4F.jpg", extraPrice: 0 },
-  { id: "b-mixte", name: "Duo Salade Verte + Penne", desc: "Le meilleur des deux mondes", image: "/assets/salade-classic-B-4lDVb2.jpg", extraPrice: 500 },
-];
-
-const PROTEINES = [
-  { id: "p-poulet", name: "Poulet Grillé Épicé", desc: "Blanc de poulet mariné aux herbes", image: "/assets/poulet-CA-PERh0.webp", extraPrice: 0 },
-  { id: "p-thon", name: "Thon Émietté", desc: "Thon naturel savoureux", image: "/assets/thon-Cx3gHb5H.webp", extraPrice: 0 },
-  { id: "p-dinde", name: "Jambon de Dinde Fumé", desc: "Découpé en fines lamelles", image: "/assets/jambon-cuit-C2UJnnTP.webp", extraPrice: 0 },
-  { id: "p-crevettes", name: "Crevettes Sautées", desc: "Crevettes fraîches snackées au citron vert", image: "/assets/crevette-wwoX80NC.webp", extraPrice: 1000 },
-  { id: "p-boeuf", name: "Bœuf Séché Traditionnel", desc: "Saveur intense et authentique", image: "/assets/boeuf-effiloche-B2OHPJHk.webp", extraPrice: 500 },
-  { id: "p-veggie", name: "Œufs Durs Fermiers", desc: "Option 100% végétarienne gourmande", image: "/assets/egg-C5NNviHX.webp", extraPrice: 0 },
-];
-
-const TOPPINGS = [
-  { id: "t-avocat", name: "Avocat Frais de Saison", image: "/assets/white-Ys_1KX4t.webp", extraPrice: 500 },
-  { id: "t-tomates", name: "Tomates Cerises", image: "/assets/tomate-cerise-CzCzaKM0.webp", extraPrice: 0 },
-  { id: "t-concombre", name: "Concombre Croquant", image: "/assets/courgette-M4oVbBx0.webp", extraPrice: 0 },
-  { id: "t-mais", name: "Maïs Doux", image: "/assets/corn-r1PnANWf.webp", extraPrice: 0 },
-  { id: "t-carottes", name: "Carottes Râpées", image: "/assets/beetroot-B9SWQa2_.webp", extraPrice: 0 },
-  { id: "t-croutons", name: "Croûtons Dorés à l'Ail", image: "/assets/croutons-DfEfR94J.webp", extraPrice: 0 },
-  { id: "t-parmesan", name: "Copeaux de Parmesan Affiné", image: "/assets/parmesan-BJf9Q78B.webp", extraPrice: 500 },
-  { id: "t-olives", name: "Olives Noires Dénoyautées", image: "/assets/olives-noires-Dzj3rXir.webp", extraPrice: 0 },
-  { id: "t-radis", name: "Radis Croquants", image: "/assets/radis-kU71-Esr.webp", extraPrice: 0 },
-  { id: "t-oignons", name: "Oignons Rouges", image: "/assets/onion-hOActqk_.webp", extraPrice: 0 },
-  { id: "t-poivrons", name: "Poivrons Doux", image: "/assets/poivron-WNzJT9hS.webp", extraPrice: 0 },
-  { id: "t-mozzarella", name: "Mozzarella Fraîche", image: "/assets/mozzarella-BQ6A8EDG.webp", extraPrice: 500 },
-  { id: "t-mangue", name: "Dés de Mangue Fraîche", image: "/assets/mangue-ltauBJ9J.webp", extraPrice: 500 },
-  { id: "t-noix", name: "Noix de Grenoble Croquantes", image: "/assets/noix-grenoble-Di-CN1Qe.webp", extraPrice: 500 },
-];
-
-const SAUCES = [
-  { id: "s-yamooh", name: "Sauce Signature Yamooh", desc: "L'originale crémeuse aux épices douces", image: "/assets/sauce-vinaigrette-CYsf44KD.jpg", extraPrice: 0 },
-  { id: "s-passion", name: "Vinaigrette Fruit de la Passion", desc: "Acidulée et exotique", image: "/assets/sauce-passion-C8y8wEXP.jpg", extraPrice: 0 },
-  { id: "s-cesar", name: "Sauce César Onctueuse", desc: "Parmesan, ail doux et crème fraîche", image: "/assets/sauce-cesar-DxzAeutG.jpg", extraPrice: 0 },
-  { id: "s-balsamique", name: "Vinaigrette Balsamique & Huile d'Olive", desc: "Légère et classique", image: "/assets/sauce-vinaigrette-DKIlEP5g.webp", extraPrice: 0 },
-  { id: "s-citron", name: "Vinaigrette Citron-Gingembre", desc: "Tonique et fraîche", image: "/assets/citronnade-BGlYWEWk.jpg", extraPrice: 0 },
-  { id: "s-miel", name: "Sauce Miel & Moutarde Douce", desc: "Douceur gourmande", image: "/assets/sauce-miel-BjhOxYNZ.jpg", extraPrice: 0 },
-];
+import { useData } from "../contexts/DataContext";
 
 export const Builder = () => {
   const { add } = useCart();
+  const { ingredients, products } = useData();
   const [searchParams] = useSearchParams();
   const sigParam = searchParams.get("sig") || searchParams.get("signature");
+
+  const BASES = useMemo(() => ingredients.filter((i) => i.type === "base" && i.isAvailable), [ingredients]);
+  const PROTEINES = useMemo(() => ingredients.filter((i) => i.type === "protein" && i.isAvailable), [ingredients]);
+  const TOPPINGS = useMemo(() => ingredients.filter((i) => i.type === "topping" && i.isAvailable), [ingredients]);
+  const SAUCES = useMemo(() => ingredients.filter((i) => i.type === "sauce" && i.isAvailable), [ingredients]);
 
   // Sélections multiples illimitées
   const [selectedBases, setSelectedBases] = useState<string[]>(["b-verte"]);
@@ -79,7 +42,7 @@ export const Builder = () => {
   // Pré-chargement automatique si l'utilisateur arrive depuis une salade signature
   useEffect(() => {
     if (!sigParam) return;
-    const targetSig = menu.find((m) => m.slug === sigParam || m.id === sigParam);
+    const targetSig = products.find((m) => m.slug === sigParam || m.id === sigParam);
     if (targetSig) {
       setCustomizedSignatureName(targetSig.name);
       // Pré-sélection selon la recette

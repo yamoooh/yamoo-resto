@@ -20,8 +20,9 @@ import {
   CalendarCheck
 } from "lucide-react";
 import { getUniverseBySlug, UNIVERSES, Universe } from "../data/universes";
-import { menu, MenuItem } from "../data/menu";
+import { MenuItem } from "../data/menu";
 import { useCart } from "../contexts/CartContext";
+import { useData } from "../contexts/DataContext";
 import Breadcrumb from "../components/Breadcrumb";
 import ContextualSubNav from "../components/ContextualSubNav";
 import FilterDrawer, { FilterState } from "../components/FilterDrawer";
@@ -32,6 +33,8 @@ export const UniverseCatalogue = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { add } = useCart();
+  const { getPublicProducts } = useData();
+  const products = getPublicProducts();
 
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -92,7 +95,7 @@ export const UniverseCatalogue = () => {
     if (subSlug && subSlug !== "all") {
       const targetSub = universe.subRubrics.find((s) => s.slug === subSlug);
       if (targetSub) {
-        return menu.filter((item) => {
+        return products.filter((item) => {
           if (targetSub.customPredicate) {
             return targetSub.customPredicate(item);
           }
@@ -113,7 +116,7 @@ export const UniverseCatalogue = () => {
     const allMatching = new Map<string, MenuItem>();
 
     universe.subRubrics.forEach((sub) => {
-      menu.forEach((item) => {
+      products.forEach((item) => {
         let isMatch = false;
         if (sub.customPredicate) {
           isMatch = sub.customPredicate(item);
@@ -136,7 +139,7 @@ export const UniverseCatalogue = () => {
     });
 
     return Array.from(allMatching.values());
-  }, [universe, subSlug]);
+  }, [universe, subSlug, products]);
 
   // Apply secondary interactive filters
   const filteredItems = useMemo(() => {

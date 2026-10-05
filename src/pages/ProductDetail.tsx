@@ -15,18 +15,20 @@ import {
   Sparkles,
   ArrowRight
 } from "lucide-react";
-import { getMenuItemBySlug, getSimilarMenuItems, MenuItem } from "../data/menu";
+import { MenuItem } from "../data/menu";
 import { useCart } from "../contexts/CartContext";
+import { useData } from "../contexts/DataContext";
 import Breadcrumb from "../components/Breadcrumb";
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { add } = useCart();
+  const { getProductBySlug, getPublicProducts } = useData();
   const [quantity, setQuantity] = useState<number>(1);
   const [addedNotification, setAddedNotification] = useState<boolean>(false);
 
-  const product = slug ? getMenuItemBySlug(slug) : undefined;
+  const product = slug ? getProductBySlug(slug) : undefined;
 
   if (!product) {
     return (
@@ -46,7 +48,10 @@ export default function ProductDetail() {
     );
   }
 
-  const similarProducts = getSimilarMenuItems(product, 3);
+  const allPublic = getPublicProducts();
+  const similarProducts = allPublic
+    .filter((item) => item.category === product.category && item.id !== product.id)
+    .slice(0, 3);
 
   const handleAddToCart = () => {
     if (product.price === null) {
