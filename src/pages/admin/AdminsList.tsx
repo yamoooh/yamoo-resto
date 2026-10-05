@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock } from "lucide-react";
+import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
 import { useData, AdminUser } from "../../contexts/DataContext";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
 
@@ -10,6 +10,8 @@ export const AdminsList: React.FC = () => {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<AdminUser["role"]>("editor");
 
   const handleCreateAdmin = (e: React.FormEvent) => {
@@ -17,10 +19,12 @@ export const AdminsList: React.FC = () => {
     addAdmin({
       name,
       email,
+      password: password || undefined,
       role,
     });
     setName("");
     setEmail("");
+    setPassword("");
     setIsCreating(false);
   };
 
@@ -69,7 +73,7 @@ export const AdminsList: React.FC = () => {
             </button>
           </div>
 
-          <form onSubmit={handleCreateAdmin} className="grid sm:grid-cols-3 gap-4">
+          <form onSubmit={handleCreateAdmin} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                 Nom complet *
@@ -100,6 +104,29 @@ export const AdminsList: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
+                Mot de passe *
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full pl-3 pr-9 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-medium outline-hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                 Rôle & Permissions *
               </label>
               <select
@@ -113,7 +140,7 @@ export const AdminsList: React.FC = () => {
               </select>
             </div>
 
-            <div className="sm:col-span-3 flex justify-end pt-2 border-t border-[#E3ECE6]">
+            <div className="sm:col-span-2 lg:col-span-4 flex justify-end pt-2 border-t border-[#E3ECE6]">
               <button
                 type="submit"
                 className="inline-flex items-center gap-2 bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-xs cursor-pointer"

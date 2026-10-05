@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ShieldCheck, ArrowRight, User, Mail, Lock, AlertCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShieldCheck, ArrowRight, User, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
 
 export const AdminFirstSetup: React.FC = () => {
@@ -9,6 +9,8 @@ export const AdminFirstSetup: React.FC = () => {
   const [email, setEmail] = useState("admin@yamooh.com");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,28 +19,43 @@ export const AdminFirstSetup: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    if (password && password !== confirmPassword) {
+    if (!name.trim() || !email.trim() || !password) {
+      setError("Veuillez renseigner tous les champs obligatoires.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Le mot de passe doit comporter au moins 6 caractères.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
       return;
     }
 
     setLoading(true);
-    const res = await setupFirstAdmin(name, email, password);
+    const res = await setupFirstAdmin(name.trim(), email.trim(), password);
     setLoading(false);
 
     if (res.success) {
       navigate("/admin");
     } else {
-      setError(res.error || "Erreur lors de l'initialisation.");
+      setError(res.error || "Erreur lors de l'initialisation du compte.");
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAF9] flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md bg-white border border-[#E3ECE6] rounded-3xl p-8 shadow-xl">
+        {/* LOGO OFFICIEL */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-[#3B8A49] flex items-center justify-center text-white mx-auto mb-4 shadow-md">
-            <ShieldCheck size={28} />
+          <div className="flex justify-center mb-3">
+            <img
+              src="/assets/logo-yamooh-official.png"
+              alt="Logo Officiel YAMOOH"
+              className="h-16 w-auto object-contain drop-shadow-xs"
+            />
           </div>
           <span className="text-[10px] font-mono uppercase px-3 py-1 rounded-full bg-[#EBF4EE] text-[#3B8A49] font-bold">
             Configuration Initiale
@@ -100,13 +117,22 @@ export const AdminFirstSetup: React.FC = () => {
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Minimum 6 caractères"
                 required
-                className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
+                minLength={6}
+                className="w-full pl-10 pr-11 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer p-1 transition"
+                title={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
@@ -117,13 +143,22 @@ export const AdminFirstSetup: React.FC = () => {
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Répétez le mot de passe"
                 required
-                className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
+                minLength={6}
+                className="w-full pl-10 pr-11 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer p-1 transition"
+                title={showConfirmPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+              >
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
@@ -132,10 +167,17 @@ export const AdminFirstSetup: React.FC = () => {
             disabled={loading}
             className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer mt-4"
           >
-            <span>{loading ? "Création..." : "Initialiser le Super Administrateur"}</span>
+            <span>{loading ? "Création en cours..." : "Initialiser le Super Administrateur"}</span>
             <ArrowRight size={14} />
           </button>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-[#E3ECE6] text-center">
+          <Link to="/admin/login" className="text-xs text-[#3B8A49] hover:underline font-bold inline-flex items-center gap-1">
+            <ArrowLeft size={13} />
+            <span>Déjà un compte ? Se connecter</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

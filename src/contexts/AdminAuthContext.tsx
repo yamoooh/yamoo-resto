@@ -8,13 +8,14 @@ interface AdminAuthContextType {
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   setupFirstAdmin: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   hasPermission: (permission: "catalog" | "media" | "content" | "marketing" | "clients" | "admins") => boolean;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { admins, addAdmin, logActivity } = useData();
+  const { admins, addAdmin, updateAdminPassword, logActivity } = useData();
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(() => {
     try {
       const saved = localStorage.getItem("yamooh_current_admin_user");
@@ -36,10 +37,13 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [currentAdmin]);
 
-  const login = async (email: string, _pass: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     const found = admins.find((a) => a.email.toLowerCase() === email.toLowerCase());
     if (!found) {
       return { success: false, error: "Identifiants administrateur incorrects." };
+    }
+    if (found.password && found.password !== pass) {
+      return { success: false, error: "Mot de passe administrateur incorrect." };
     }
     const updated = { ...found, lastLogin: new Date().toLocaleString("fr-FR") };
     setCurrentAdmin(updated);
@@ -47,7 +51,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return { success: true };
   };
 
-  const setupFirstAdmin = async (name: string, email: string, _pass: string): Promise<{ success: boolean; error?: string }> => {
+  const setupFirstAdmin = async (name: string, email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
     if (!name || !email) {
       return { success: false, error: "Veuillez renseigner tous les champs obligatoires." };
     }
@@ -55,6 +59,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id: "adm-root",
       name,
       email,
+      password: pass,
       role: "super_admin",
       createdAt: new Date().toISOString().split("T")[0],
       lastLogin: new Date().toLocaleString("fr-FR"),
@@ -63,6 +68,21 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentAdmin(newAdmin);
     logActivity("create", "Super Administrateur", `Initialisation du premier compte Super Admin (${name})`);
     return { success: true };
+  };
+
+  const resetPassword = async (email: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
+    if (!email || !newPass) {
+      return { success: false, error: "Veuillez renseigner une adresse email et un nouveau mot de passe." };
+    }
+    const exists = admins.some((a) => a.email.toLowerCase() === email.toLowerCase());
+    if (!exists) {
+      return { success: false, error: "Aucun compte administrateur n'est associé à cette adresse e-mail." };
+    }
+    const ok = updateAdminPassword(email, newPass);
+    if (ok) {
+      return { success: true };
+    }
+    return { success: false, error: "Erreur lors de la mise à jour du mot de passe." };
   };
 
   const logout = () => {
@@ -90,6 +110,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         login,
         logout,
         setupFirstAdmin,
+        resetPassword,
         hasPermission,
       }}
     >

@@ -129,6 +129,7 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
+  password?: string;
   role: "super_admin" | "admin" | "editor" | "marketing";
   createdAt: string;
   lastLogin?: string;
@@ -188,6 +189,7 @@ interface DataContextType {
   
   // Admin & Activity
   addAdmin: (admin: Omit<AdminUser, "id" | "createdAt">) => void;
+  updateAdminPassword: (email: string, newPassword: string) => boolean;
   deleteAdmin: (id: string) => void;
   logActivity: (actionType: ActivityLogItem["actionType"], targetEntity: string, details: string) => void;
   
@@ -988,6 +990,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logActivity("create", `Admin ${admin.name}`, `Création du compte administrateur (${admin.role})`);
   }, [logActivity]);
 
+  const updateAdminPassword = useCallback((email: string, newPassword: string): boolean => {
+    let updated = false;
+    setAdmins((prev) =>
+      prev.map((a) => {
+        if (a.email.toLowerCase() === email.toLowerCase()) {
+          updated = true;
+          return { ...a, password: newPassword };
+        }
+        return a;
+      })
+    );
+    if (updated) {
+      logActivity("update", "Sécurité Administrateur", `Réinitialisation du mot de passe pour ${email}`);
+    }
+    return updated;
+  }, [logActivity]);
+
   const deleteAdmin = useCallback((id: string) => {
     setAdmins((prev) => prev.filter((a) => a.id !== id));
   }, []);
@@ -1034,6 +1053,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         replaceMediaItem,
         deleteMediaItem,
         addAdmin,
+        updateAdminPassword,
         deleteAdmin,
         logActivity,
         getPublicProducts,

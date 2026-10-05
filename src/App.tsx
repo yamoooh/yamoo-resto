@@ -74,6 +74,7 @@ import PolitiqueCookies from "./pages/legal/PolitiqueCookies";
 import AdminLayout from "./layouts/AdminLayout";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { AdminFirstSetup } from "./pages/admin/AdminFirstSetup";
+import { AdminForgotPassword } from "./pages/admin/AdminForgotPassword";
 import { Dashboard } from "./pages/admin/Dashboard";
 import { ProductsList } from "./pages/admin/ProductsList";
 import { ProductEdit } from "./pages/admin/ProductEdit";
@@ -100,6 +101,7 @@ export default function App() {
                 {/* 1. ADMINISTRATION BACK-OFFICE YAMOOH (Layout indépendant) */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/setup" element={<AdminFirstSetup />} />
+                <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="products" element={<ProductsList />} />

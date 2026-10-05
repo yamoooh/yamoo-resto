@@ -67,12 +67,13 @@ export const AdminLayout: React.FC = () => {
           </button>
 
           <Link to="/admin" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#3B8A49] flex items-center justify-center text-white font-black text-lg shadow-sm">
-              Y
-            </div>
-            <div>
-              <span className="font-display font-black text-lg text-[#1E3A2B] tracking-tight">YAMOOH</span>
-              <span className="ml-2 text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#EBF4EE] text-[#3B8A49] font-bold">
+            <img
+              src="/assets/logo-yamooh-official.png"
+              alt="Logo Officiel YAMOOH"
+              className="h-10 w-auto object-contain drop-shadow-2xs"
+            />
+            <div className="hidden sm:flex items-center">
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[#EBF4EE] text-[#3B8A49] font-bold">
                 CMS Back-Office
               </span>
             </div>
