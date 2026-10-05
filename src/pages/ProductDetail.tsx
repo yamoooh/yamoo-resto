@@ -122,8 +122,8 @@ export default function ProductDetail() {
           <div className="mb-6">
             <Breadcrumb
               items={[
-                { label: "Notre Carte", path: "/notre-carte" },
-                { label: product.category, path: `/notre-carte#${product.category.toLowerCase().replace(/\s+/g, "-")}` },
+                { label: "Notre Carte", to: "/notre-carte" },
+                { label: product.category, to: `/notre-carte#${product.category.toLowerCase().replace(/\s+/g, "-")}` },
                 { label: product.name }
               ]}
             />

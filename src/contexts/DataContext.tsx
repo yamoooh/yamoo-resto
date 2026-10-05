@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { MenuItem, menu as initialMenu } from "../data/menu";
-import { universes as initialUniverses, CommercialUniverse } from "../data/universes";
 
 export type ProductStatus = "published" | "draft" | "hidden" | "archived";
 
