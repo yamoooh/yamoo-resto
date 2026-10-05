@@ -68,7 +68,7 @@ export const Seminaires = () => {
 
           <div className="relative rounded-3xl overflow-hidden shadow-elevated border border-border group h-72 sm:h-80">
             <img
-              src="https://lh3.googleusercontent.com/aida/AEtjO1UssdhVn3KAEOCw_i394LhDHfFVW0ePn4FpW1wyCHVmnTgKMepOPsAyVaBHpXxG9JaQFSjxy9wUt8sk21zAcyADZ5lqPVfjyWdB7c3dHGohHEiDwieQnviZqrzabneiKtPx0zBMPolFrbj2dNfblZJcJqHNNUXlIrrs-Yg12k4WFxnBRhE1Cql1VnUXWWE-8CDblBjdqu-C40nDs0DLox5FDMuFp78tUXu-MpUm7WXsDtspIDwBt0aFwqo"
+              src="/assets/formule-plateaux-repas.jpg"
               alt="Buffet Séminaire Entreprise YAMOOH Douala"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />

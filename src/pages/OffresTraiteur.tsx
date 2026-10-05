@@ -136,18 +136,18 @@ export const OffresTraiteur = () => {
         </div>
       </section>
 
-      {/* VITRINE VISUELLE TRAITEUR HAUTE GASTRONOMIE DE STITCH */}
+      {/* VITRINE VISUELLE TRAITEUR HAUTE GASTRONOMIE */}
       <section className="container-tight py-12">
         <div className="grid lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 rounded-3xl overflow-hidden shadow-elevated border border-border group relative aspect-16/10">
             <img
-              src="https://lh3.googleusercontent.com/aida/AEtjO1UssdhVn3KAEOCw_i394LhDHfFVW0ePn4FpW1wyCHVmnTgKMepOPsAyVaBHpXxG9JaQFSjxy9wUt8sk21zAcyADZ5lqPVfjyWdB7c3dHGohHEiDwieQnviZqrzabneiKtPx0zBMPolFrbj2dNfblZJcJqHNNUXlIrrs-Yg12k4WFxnBRhE1Cql1VnUXWWE-8CDblBjdqu-C40nDs0DLox5FDMuFp78tUXu-MpUm7WXsDtspIDwBt0aFwqo"
+              src="/assets/hero-slide-3.jpg"
               alt="Buffet traiteur événementiel haut de gamme YAMOOH à Douala"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A2B]/90 via-transparent to-transparent flex items-end p-6 sm:p-8">
               <div className="text-white">
-                <span className="bg-[#D96B43] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block">
+                <span className="bg-[#3B8A49] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block">
                   Événements de Prestige
                 </span>
                 <h3 className="text-xl sm:text-2xl font-display font-bold">
@@ -163,12 +163,12 @@ export const OffresTraiteur = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-[#FAF7F2] border border-border rounded-3xl p-6 sm:p-8 flex items-start gap-4">
               <img
-                src="https://lh3.googleusercontent.com/aida/AEtjO1Uy-X5vZF5u4etxeriCwYj5HSmf9yY_ZIS0Yxm0uAGcIQFgVKnGhN1e3aKzKtVESrSAGD4i4u_DA-3fWeNWeo3aILWZpxKJQm6rb5p8p5nrsUavhy70_YYcTdU0EnhvI5UQO5bGzhtt6-MIRYcVQXoLGyKNG0A9mRFYasDRao1GAa17_9TWVEj6HqkyoMBfWdT7Uk70WvP82Vh8K39CBKBfDbe8wVcdf9fB_gFAzUx2PcSDJLcGqZRKHfk"
+                src="/assets/hero-slide-1.jpg"
                 alt="Chef cuisinier YAMOOH"
                 className="w-20 h-20 rounded-2xl object-cover shadow-sm shrink-0 border-2 border-white"
               />
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D96B43] block font-mono">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#3B8A49] block font-mono">
                   Savoir-Faire Culinaire
                 </span>
                 <h4 className="text-lg font-display font-bold text-[#1E3A2B] mt-0.5">
@@ -182,7 +182,7 @@ export const OffresTraiteur = () => {
 
             <div className="bg-white border border-border rounded-3xl p-6 sm:p-8 shadow-card flex items-start gap-4">
               <img
-                src="https://lh3.googleusercontent.com/aida/AEtjO1U4OvHMdgprjnc0_3sRn250AmWmytzgXvvEQvTcjWxn7iXQCY5n-4EAzH-x1skmBwo_KLsp6Kgl35yxgnEAs6MXf1BtvLWcHYTiBRaqWBZHuSqazIbh1ydJ2-TI9CURy_ffCrnmHfIuajdTluSdJqROQeaykNm3ozWVLjzM2H9fCsuflM98vMgyZgCAp9PQTjQqUKIvEpInw8A0xONcax7zpr6W0hVBPYAnT1WuJWPoNjkRmuPqIyfg4vE"
+                src="/assets/bouteilles-jus-naturel-1l.jpg"
                 alt="Jus pressés à froid et boissons fraîches traiteur"
                 className="w-20 h-20 rounded-2xl object-cover shadow-sm shrink-0 border-2 border-white"
               />

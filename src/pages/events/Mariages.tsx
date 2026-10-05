@@ -72,7 +72,7 @@ export const Mariages = () => {
 
           <div className="relative rounded-3xl overflow-hidden shadow-elevated border border-border group h-80 sm:h-96">
             <img
-              src="https://lh3.googleusercontent.com/aida/AEtjO1UssdhVn3KAEOCw_i394LhDHfFVW0ePn4FpW1wyCHVmnTgKMepOPsAyVaBHpXxG9JaQFSjxy9wUt8sk21zAcyADZ5lqPVfjyWdB7c3dHGohHEiDwieQnviZqrzabneiKtPx0zBMPolFrbj2dNfblZJcJqHNNUXlIrrs-Yg12k4WFxnBRhE1Cql1VnUXWWE-8CDblBjdqu-C40nDs0DLox5FDMuFp78tUXu-MpUm7WXsDtspIDwBt0aFwqo"
+              src="/assets/hero-slide-3.jpg"
               alt="Buffet Traiteur Mariage YAMOOH Douala"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
@@ -130,7 +130,7 @@ export const Mariages = () => {
         <div className="bg-[#1E3A2B] text-white rounded-3xl p-8 sm:p-10 relative overflow-hidden flex flex-col md:flex-row gap-8 items-center">
           <div className="w-full md:w-1/3 h-56 rounded-2xl overflow-hidden relative shadow-lg">
             <img
-              src="https://lh3.googleusercontent.com/aida/AEtjO1Uy-X5vZF5u4etxeriCwYj5HSmf9yY_ZIS0Yxm0uAGcIQFgVKnGhN1e3aKzKtVESrSAGD4i4u_DA-3fWeNWeo3aILWZpxKJQm6rb5p8p5nrsUavhy70_YYcTdU0EnhvI5UQO5bGzhtt6-MIRYcVQXoLGyKNG0A9mRFYasDRao1GAa17_9TWVEj6HqkyoMBfWdT7Uk70WvP82Vh8K39CBKBfDbe8wVcdf9fB_gFAzUx2PcSDJLcGqZRKHfk"
+              src="/assets/hero-slide-1.jpg"
               alt="Chef Traiteur YAMOOH"
               className="w-full h-full object-cover"
             />

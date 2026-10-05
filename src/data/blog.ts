@@ -23,7 +23,7 @@ export const blogPosts: BlogPost[] = [
     date: "14 Septembre 2026",
     readTime: "4 min",
     imageAlt: "Salade composée gastronomique YAMMOH avec légumes frais et protéines à Douala",
-    image: "https://lh3.googleusercontent.com/aida/AEtjO1WZacJ3jTmYNMXTi8S00P63AG9ajlCbd072U17dg7gQL_0fhYfolA7id4PTTpUdCgGQHqkhkUcW1p82XpZoL95m9R1DR0Sd9kENjhbY4tkdiNkKVT5Idp-S-O2PrsiYM4RDnmBd0txNlZP2e7XzFLXlNHpWBOrsZg-dMp1_ZYR1qcmSLyJDmoUaP4g8ybpLFbtVK9LS2HHF_Zroy6i68DAVn5eu5YaLkGBObLcewIG71V3w4dohHd8JsLU",
+    image: "/assets/salade-iberique.jpg",
     content: {
       intro: "Manger équilibré à Douala ne rime pas avec privation. Avec la richesse des marchés locaux maraîchers, composer un bol sain et gourmand est une question de méthode et de proportions harmonieuses.",
       sections: [
@@ -51,7 +51,7 @@ export const blogPosts: BlogPost[] = [
     date: "08 Septembre 2026",
     readTime: "5 min",
     imageAlt: "Buffet traiteur haute gastronomie pour événement d'entreprise à Douala",
-    image: "https://lh3.googleusercontent.com/aida/AEtjO1UssdhVn3KAEOCw_i394LhDHfFVW0ePn4FpW1wyCHVmnTgKMepOPsAyVaBHpXxG9JaQFSjxy9wUt8sk21zAcyADZ5lqPVfjyWdB7c3dHGohHEiDwieQnviZqrzabneiKtPx0zBMPolFrbj2dNfblZJcJqHNNUXlIrrs-Yg12k4WFxnBRhE1Cql1VnUXWWE-8CDblBjdqu-C40nDs0DLox5FDMuFp78tUXu-MpUm7WXsDtspIDwBt0aFwqo",
+    image: "/assets/formule-buffet.jpg",
     content: {
       intro: "Le déjeuner lors d'un séminaire d'entreprise ou d'une réunion stratégique à Douala joue un rôle clé dans le dynamisme des participants et la ponctualité de votre agenda.",
       sections: [
@@ -79,7 +79,7 @@ export const blogPosts: BlogPost[] = [
     date: "01 Septembre 2026",
     readTime: "3 min",
     imageAlt: "Agriculture maraîchère biologique des hauts plateaux de l'Ouest Cameroun pour YAMMOH",
-    image: "https://lh3.googleusercontent.com/aida/AEtjO1Wm84QFTKHdR1HizZOOiV_M_H4f6KLqMYqAZYVpqh2lmNPOX9_5he3d51slUBjz37uJBFNdPChGLvNaBvXZmyteb2ZmkDAuDPta6ZV9PKH9usib1t3x6CF4BeB5AyNBnhvZ_LaduPKzReDaz-NNdOyPe9YnqGf_zx2a3cImnA3ZBwFY8I4KTRyTA8UxKPrIdASPsnK42I0djMKU4WJennQ3n4H9-NTy4dDlH09sBP434lOQgCJa5kFyAhI",
+    image: "/assets/hero-slide-1.jpg",
     content: {
       intro: "Chez YAMMOH, aucun bol de salade n'est préparé à l'avance. Découvrez les coulisses de notre engagement fraîcheur à la Pharmacie Kotto.",
       sections: [
@@ -107,7 +107,7 @@ export const blogPosts: BlogPost[] = [
     date: "20 Septembre 2026",
     readTime: "5 min",
     imageAlt: "Séchage artisanal du poivre de Penja et aromates locaux au Cameroun",
-    image: "https://lh3.googleusercontent.com/aida/AEtjO1VW2ffV7O0yzL4bXO10ubORNyyKO8eSyMAEPmgaz838_iizoPzCYVoRAMmIUk_a11gFilbHj5FYCJDd3v4JKslkhfc_Z12z20yK_ZiKvZnZWBzugi6T6rifHFX7ZLuPsn5fpnahGOlj-K2Konm78YpZJ5mUse_AONRWuiFmJaJ0cWuQG4T6Q44FHYb_rtretjHnYPxeqPjfUCP0SMA4m_GosTzN9mIlIsBz-txeww16W2pyPnPufroIEw",
+    image: "/assets/terroire-BNuswzeV.jpg",
     content: {
       intro: "Premier produit d'Afrique subsaharienne à avoir obtenu une Indication Géographique Protégée (IGP), le poivre de Penja est un trésor botanique qui sublime les créations signatures YAMOOH.",
       sections: [
@@ -131,7 +131,7 @@ export const blogPosts: BlogPost[] = [
     date: "25 Septembre 2026",
     readTime: "4 min",
     imageAlt: "Préparation de jus tropicaux frais et bols détox dans la cuisine YAMOOH à Douala",
-    image: "https://lh3.googleusercontent.com/aida/AEtjO1U4OvHMdgprjnc0_3sRn250AmWmytzgXvvEQvTcjWxn7iXQCY5n-4EAzH-x1skmBwo_KLsp6Kgl35yxgnEAs6MXf1BtvLWcHYTiBRaqWBZHuSqazIbh1ydJ2-TI9CURy_ffCrnmHfIuajdTluSdJqROQeaykNm3ozWVLjzM2H9fCsuflM98vMgyZgCAp9PQTjQqUKIvEpInw8A0xONcax7zpr6W0hVBPYAnT1WuJWPoNjkRmuPqIyfg4vE",
+    image: "/assets/bouteilles-jus-naturel-1l.jpg",
     content: {
       intro: "Rien ne remplace la pureté d'un fruit tropical fraîchement pressé pour accompagner votre repas du midi sous le climat équatorial de Douala.",
       sections: [

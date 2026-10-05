@@ -195,7 +195,7 @@ export const EventServices = () => {
 
           <div className="relative min-h-[300px] md:min-h-full">
             <img
-              src="https://lh3.googleusercontent.com/aida/AEtjO1UssdhVn3KAEOCw_i394LhDHfFVW0ePn4FpW1wyCHVmnTgKMepOPsAyVaBHpXxG9JaQFSjxy9wUt8sk21zAcyADZ5lqPVfjyWdB7c3dHGohHEiDwieQnviZqrzabneiKtPx0zBMPolFrbj2dNfblZJcJqHNNUXlIrrs-Yg12k4WFxnBRhE1Cql1VnUXWWE-8CDblBjdqu-C40nDs0DLox5FDMuFp78tUXu-MpUm7WXsDtspIDwBt0aFwqo"
+              src="/assets/hero-slide-3.jpg"
               alt="Buffet Traiteur Événementiel YAMOOH Douala"
               className="w-full h-full object-cover"
             />

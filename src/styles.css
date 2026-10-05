@@ -155,7 +155,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee 35s linear infinite;
+  animation: marquee 75s linear infinite;
 }
 .animate-marquee:hover {
   animation-play-state: paused;
@@ -167,28 +167,28 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Hero Cinematographic Camera Animations */
+/* Hero Cinematographic Camera Animations (Zoom et travelling bien visibles) */
 @keyframes hero-zoom-in {
   0% { transform: scale(1.00); }
-  100% { transform: scale(1.045); }
+  100% { transform: scale(1.15); }
 }
 @keyframes hero-pan-h {
-  0% { transform: scale(1.02) translate3d(0, 0, 0); }
-  100% { transform: scale(1.02) translate3d(-18px, 0, 0); }
+  0% { transform: scale(1.12) translate3d(0, 0, 0); }
+  100% { transform: scale(1.12) translate3d(-35px, 0, 0); }
 }
 @keyframes hero-zoom-out {
-  0% { transform: scale(1.045); }
-  100% { transform: scale(1.00); }
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1.02); }
 }
 
 .animate-hero-zoom-in {
-  animation: hero-zoom-in 7.5s ease-out forwards;
+  animation: hero-zoom-in 5.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 .animate-hero-pan-h {
-  animation: hero-pan-h 7.5s linear forwards;
+  animation: hero-pan-h 5.5s ease-out forwards;
 }
 .animate-hero-zoom-out {
-  animation: hero-zoom-out 7.5s ease-out forwards;
+  animation: hero-zoom-out 5.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 /* 3-video crossfade */

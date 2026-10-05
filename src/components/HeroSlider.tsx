@@ -85,46 +85,35 @@ const SLIDES: SlideData[] = [
   },
 ];
 
-const SLIDE_DURATION = 7000; // 7 secondes par slide
+const SLIDE_DURATION = 5000; // 5 secondes par slide (défilement automatique garanti)
 
 export const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(Date.now());
-  const elapsedBeforePauseRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
 
   const goToSlide = useCallback((index: number) => {
     setCurrentSlide(index);
     setProgress(0);
-    elapsedBeforePauseRef.current = 0;
     startTimeRef.current = Date.now();
   }, []);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
     setProgress(0);
-    elapsedBeforePauseRef.current = 0;
     startTimeRef.current = Date.now();
   }, []);
 
-  // Gestion du cycle automatique de 7 secondes
+  // Défilement automatique continu toutes les 5 secondes
   useEffect(() => {
-    if (isPaused) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      return;
-    }
-
-    const remainingTime = SLIDE_DURATION - elapsedBeforePauseRef.current;
-    startTimeRef.current = Date.now() - elapsedBeforePauseRef.current;
+    startTimeRef.current = Date.now();
 
     timerRef.current = setTimeout(() => {
       nextSlide();
-    }, remainingTime);
+    }, SLIDE_DURATION);
 
     const updateProgress = () => {
       const elapsed = Date.now() - startTimeRef.current;
@@ -142,22 +131,11 @@ export const HeroSlider = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [currentSlide, isPaused, nextSlide]);
-
-  const handleMouseEnter = () => {
-    setIsPaused(true);
-    elapsedBeforePauseRef.current = Date.now() - startTimeRef.current;
-  };
-
-  const handleMouseLeave = () => {
-    setIsPaused(false);
-  };
+  }, [currentSlide, nextSlide]);
 
   return (
     <section
       className="relative w-full overflow-hidden bg-[#FAF8F5] dark:bg-[#121E17] select-none"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       aria-roledescription="carousel"
       aria-label="Campagne gastronomique YAMOOH"
     >
