@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, ArrowRight, Lock, Mail, AlertCircle, Eye, EyeOff, Key } from "lucide-react";
+import { Shield, ArrowRight, Lock, Mail, AlertCircle, Eye, EyeOff, Key, Hash } from "lucide-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
+import { useData } from "../../contexts/DataContext";
 
 export const AdminLogin: React.FC = () => {
   const { login, resetPassword } = useAdminAuth();
+  const { admins } = useData();
   const navigate = useNavigate();
 
-  const [mode, setMode] = useState<"login" | "forgot">("login");
+  const [mode, setMode] = useState<"login" | "forgot" | "verify" | "reset">("login");
 
   // Champs de connexion
   const [email, setEmail] = useState("");
@@ -16,6 +18,7 @@ export const AdminLogin: React.FC = () => {
 
   // Champs mot de passe oublié
   const [resetEmail, setResetEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
 
@@ -39,6 +42,41 @@ export const AdminLogin: React.FC = () => {
     }
   };
 
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    
+    // Vérifier si l'email existe dans la base
+    const exists = admins.some((a) => a.email.toLowerCase() === resetEmail.toLowerCase());
+    if (!exists) {
+      setError("Aucun compte administrateur n'est associé à cette adresse e-mail.");
+      return;
+    }
+
+    setLoading(true);
+    // Simulation de l'envoi d'un email
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess("Un code de vérification a été envoyé à votre adresse e-mail.");
+      setMode("verify");
+    }, 1500);
+  };
+
+  const handleVerifySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    // Simulation : Le code attendu est 123456 pour la démo
+    if (verificationCode === "123456") {
+      setSuccess("Code valide. Veuillez saisir votre nouveau mot de passe.");
+      setMode("reset");
+    } else {
+      setError("Code de vérification incorrect.");
+    }
+  };
+
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,6 +96,8 @@ export const AdminLogin: React.FC = () => {
       setMode("login");
       setEmail(resetEmail);
       setPassword("");
+      setVerificationCode("");
+      setNewPassword("");
     } else {
       setError(res.error || "Erreur lors de la mise à jour.");
     }
@@ -82,9 +122,10 @@ export const AdminLogin: React.FC = () => {
             Back-Office YAMOOH
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            {mode === "login"
-              ? "Connectez-vous pour administrer les contenus"
-              : "Réinitialisez votre mot de passe administrateur"}
+            {mode === "login" && "Connectez-vous pour administrer les contenus"}
+            {mode === "forgot" && "Récupération de compte"}
+            {mode === "verify" && "Vérification de sécurité"}
+            {mode === "reset" && "Nouveau mot de passe"}
           </p>
         </div>
 
@@ -102,7 +143,7 @@ export const AdminLogin: React.FC = () => {
           </div>
         )}
 
-        {mode === "login" ? (
+        {mode === "login" && (
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
@@ -168,8 +209,13 @@ export const AdminLogin: React.FC = () => {
               <span>{loading ? "Vérification..." : "Accéder au Back-Office"}</span>
             </button>
           </form>
-        ) : (
-          <form onSubmit={handleResetSubmit} className="space-y-4">
+        )}
+
+        {mode === "forgot" && (
+          <form onSubmit={handleForgotSubmit} className="space-y-4">
+            <p className="text-xs text-muted-foreground mb-4">
+              Saisissez votre adresse e-mail. Un code de réinitialisation vous sera envoyé pour des raisons de sécurité.
+            </p>
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
                 Adresse e-mail admin
@@ -187,6 +233,82 @@ export const AdminLogin: React.FC = () => {
               </div>
             </div>
 
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+            >
+              <span>{loading ? "Envoi en cours..." : "Recevoir le code"}</span>
+            </button>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError("");
+                  setSuccess("");
+                }}
+                className="text-xs text-muted-foreground hover:text-[#1E3A2B] flex items-center justify-center gap-1 mx-auto cursor-pointer"
+              >
+                <ArrowRight size={14} className="rotate-180" />
+                <span>Retour à la connexion</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {mode === "verify" && (
+          <form onSubmit={handleVerifySubmit} className="space-y-4">
+            <p className="text-xs text-muted-foreground mb-4">
+              Veuillez saisir le code à 6 chiffres envoyé à l'adresse <strong>{resetEmail}</strong>.
+              <br/><br/>
+              <em>(Pour cette version de démonstration, le code est : <strong>123456</strong>)</em>
+            </p>
+            <div>
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
+                Code de vérification
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="123456"
+                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden text-center tracking-widest"
+                  required
+                />
+                <Hash size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+            >
+              <span>Vérifier le code</span>
+            </button>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("forgot");
+                  setError("");
+                  setSuccess("");
+                }}
+                className="text-xs text-muted-foreground hover:text-[#1E3A2B] flex items-center justify-center gap-1 mx-auto cursor-pointer"
+              >
+                <ArrowRight size={14} className="rotate-180" />
+                <span>Modifier l'adresse e-mail</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {mode === "reset" && (
+          <form onSubmit={handleResetSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
                 Nouveau mot de passe
@@ -214,25 +336,10 @@ export const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+              className="w-full bg-[#1E3A2B] hover:bg-[#162B20] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
             >
-              <span>{loading ? "Mise à jour..." : "Réinitialiser le mot de passe"}</span>
+              <span>{loading ? "Mise à jour..." : "Enregistrer le mot de passe"}</span>
             </button>
-
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("login");
-                  setError("");
-                  setSuccess("");
-                }}
-                className="text-xs text-muted-foreground hover:text-[#1E3A2B] flex items-center justify-center gap-1 mx-auto cursor-pointer"
-              >
-                <ArrowRight size={14} className="rotate-180" />
-                <span>Retour à la connexion</span>
-              </button>
-            </div>
           </form>
         )}
 

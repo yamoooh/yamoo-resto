@@ -133,6 +133,7 @@ export interface AdminUser {
   role: "super_admin" | "admin" | "editor" | "marketing";
   createdAt: string;
   lastLogin?: string;
+  avatar?: string;
 }
 
 export interface ActivityLogItem {
@@ -190,7 +191,7 @@ interface DataContextType {
   // Admin & Activity
   addAdmin: (admin: Omit<AdminUser, "id" | "createdAt">) => void;
   updateAdminPassword: (email: string, newPassword: string) => boolean;
-  updateAdminCredentials: (id: string, newEmail: string, newPassword?: string) => void;
+  updateAdminProfile: (id: string, updates: Partial<AdminUser>) => void;
   deleteAdmin: (id: string) => void;
   logActivity: (actionType: ActivityLogItem["actionType"], targetEntity: string, details: string) => void;
   
@@ -1018,16 +1019,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return updated;
   }, [logActivity]);
 
-  const updateAdminCredentials = useCallback((id: string, newEmail: string, newPassword?: string) => {
+  const updateAdminProfile = useCallback((id: string, updates: Partial<AdminUser>) => {
     setAdmins((prev) =>
       prev.map((a) => {
         if (a.id === id) {
-          return { ...a, email: newEmail, password: newPassword || a.password };
+          return { ...a, ...updates };
         }
         return a;
       })
     );
-    logActivity("update", "Administrateur", `Modification des identifiants (Email: ${newEmail})`);
+    logActivity("update", "Administrateur", `Modification du profil (Admin ID: ${id})`);
   }, [logActivity]);
 
   const deleteAdmin = useCallback((id: string) => {
@@ -1077,7 +1078,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteMediaItem,
         addAdmin,
         updateAdminPassword,
-        updateAdminCredentials,
+        updateAdminProfile,
         deleteAdmin,
         logActivity,
         getPublicProducts,
