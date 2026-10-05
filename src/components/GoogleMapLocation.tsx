@@ -133,7 +133,7 @@ export const GoogleMapLocation = ({
               href={mapsSearchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-secondary/80 text-foreground border border-border px-4 py-2.5 rounded-full text-xs font-bold transition shadow-2xs hover:border-[#1E3A2B]"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-secondary hover:bg-secondary/80 text-foreground border border-border px-4 py-2.5 rounded-full text-xs font-bold transition shadow-2xs hover:border-[#3B8A49]"
               title="Ouvrir la fiche dans Google Maps"
             >
               <ExternalLink size={13} className="text-[#D96B43]" />
@@ -144,7 +144,7 @@ export const GoogleMapLocation = ({
             <button
               onClick={handleCalculateRoute}
               disabled={isLocating}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-[#1E3A2B] hover:bg-[#162a1f] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition shadow-soft cursor-pointer disabled:opacity-75"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition shadow-soft cursor-pointer disabled:opacity-75"
               title="Calculer l'itinéraire jusqu'à YAMOOH"
             >
               <Navigation size={13} className={isLocating ? "animate-spin text-[#F2B705]" : "text-[#F2B705]"} />
@@ -159,13 +159,13 @@ export const GoogleMapLocation = ({
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
           {/* Horaires */}
           <div className="bg-card border border-border rounded-2xl p-4 flex items-start gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#E3ECE6] text-[#1E3A2B] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#EBF4EE] text-[#3B8A49] flex items-center justify-center shrink-0">
               <Clock size={18} />
             </div>
             <div>
               <strong className="block text-xs font-bold text-foreground uppercase tracking-wider">Horaires de Retrait</strong>
               <p className="text-xs text-muted-foreground mt-0.5">{establishment.hours.days}</p>
-              <p className="text-xs font-bold text-[#1E3A2B] dark:text-[#F2B705]">{establishment.hours.time}</p>
+              <p className="text-xs font-bold text-[#3B8A49] dark:text-[#F2B705]">{establishment.hours.time}</p>
             </div>
           </div>
 

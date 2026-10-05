@@ -135,21 +135,21 @@ export const Navbar = () => {
               {/* Adresse / Zone de Livraison (Visible dès sm) */}
               <button
                 onClick={() => setAddressModalOpen(true)}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF8F5] dark:bg-white/5 hover:bg-[#E3ECE6]/50 dark:hover:bg-white/10 border border-border/80 text-left transition-colors cursor-pointer group max-w-[260px] lg:max-w-[340px]"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF8F5] dark:bg-white/5 hover:bg-[#EBF4EE] dark:hover:bg-white/10 border border-border/80 hover:border-[#3B8A49]/40 text-left transition-colors cursor-pointer group max-w-[260px] lg:max-w-[340px]"
                 title="Choisir votre adresse de livraison ou point de retrait"
               >
-                <div className="w-6 h-6 rounded-full bg-[#D96B43]/10 text-[#D96B43] flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-[#3B8A49]/10 text-[#3B8A49] flex items-center justify-center shrink-0">
                   <MapPin size={13} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-bold text-[#1E3A2B] dark:text-white truncate">
+                  <span className="block text-[11px] font-bold text-foreground truncate">
                     {selectedAddress || "Entrez votre adresse pour commander"}
                   </span>
                   <span className="block text-[9.5px] text-muted-foreground truncate">
                     Douala • Pharmacie Kotto & Livraison
                   </span>
                 </div>
-                <div className="w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 text-muted-foreground group-hover:text-[#D96B43] flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 text-muted-foreground group-hover:text-[#3B8A49] flex items-center justify-center shrink-0">
                   <Plus size={11} />
                 </div>
               </button>
@@ -160,9 +160,9 @@ export const Navbar = () => {
               {/* Nos Établissements (Lien discret avec icône) */}
               <Link
                 to="/yamooh/etablissements"
-                className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-[#1E3A2B] dark:text-white/90 hover:text-[#D96B43] hover:bg-black/5 dark:hover:bg-white/5 transition"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-foreground/90 hover:text-[#3B8A49] hover:bg-black/5 dark:hover:bg-white/5 transition"
               >
-                <Building2 size={15} className="text-[#D96B43]" />
+                <Building2 size={15} className="text-[#3B8A49]" />
                 <span>Nos établissements</span>
               </Link>
 
@@ -182,27 +182,37 @@ export const Navbar = () => {
               <Link
                 to="/recherche"
                 aria-label="Rechercher sur la carte"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-secondary/80 text-[#1E3A2B] dark:text-white/90 hover:text-[#D96B43] transition flex items-center justify-center"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-secondary/80 text-foreground/90 hover:text-[#3B8A49] transition flex items-center justify-center"
                 title="Rechercher un plat, un univers ou un service"
               >
                 <Search size={19} />
               </Link>
 
-              {/* ICÔNE COMPTE */}
+              {/* BOUTON / ICÔNE COMPTE (CONNECTÉ OU NON) */}
               <Link
                 to={user ? "/account" : "/auth"}
-                aria-label="Mon compte YAMOOH"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-secondary/80 text-[#1E3A2B] dark:text-white/90 hover:text-[#D96B43] transition flex items-center justify-center"
-                title={user ? "Accéder à mon compte client" : "Se connecter / S'inscrire"}
+                aria-label={user ? `Mon compte client (${user.email})` : "Se connecter ou créer un compte YAMOOH"}
+                className={`relative p-2 sm:p-2.5 rounded-full transition flex items-center justify-center ${
+                  user
+                    ? "bg-[#3B8A49]/10 text-[#3B8A49] hover:bg-[#3B8A49]/20"
+                    : "hover:bg-secondary/80 text-foreground/90 hover:text-[#3B8A49]"
+                }`}
+                title={user ? `Mon compte client (${user.email})` : "Se connecter / Créer un compte"}
               >
-                <User size={19} />
+                <User size={19} className={user ? "text-[#3B8A49]" : "text-foreground/90"} />
+                {user && (
+                  <span 
+                    className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#3B8A49] rounded-full border-2 border-white dark:border-[#121E17]" 
+                    title="Connecté"
+                  />
+                )}
               </Link>
 
               {/* ICÔNE PANIER */}
               <Link
                 to="/cart"
                 aria-label="Mon panier"
-                className="relative p-2 sm:p-2.5 rounded-full hover:bg-secondary/80 text-[#1E3A2B] dark:text-white/90 hover:text-[#D96B43] transition flex items-center justify-center"
+                className="relative p-2 sm:p-2.5 rounded-full hover:bg-secondary/80 text-foreground/90 hover:text-[#3B8A49] transition flex items-center justify-center"
                 title="Voir mon panier de commande"
               >
                 <ShoppingBag size={19} />
@@ -215,7 +225,7 @@ export const Navbar = () => {
 
               {/* Bouton Hamburger Mobile (< 1200px) */}
               <button
-                className="min-[1200px]:hidden p-2 rounded-xl bg-secondary hover:bg-secondary/80 text-[#1E3A2B] dark:text-white cursor-pointer ml-1"
+                className="min-[1200px]:hidden p-2 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground cursor-pointer ml-1"
                 onClick={() => setMobileOpen((o) => !o)}
                 aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
@@ -252,10 +262,10 @@ export const Navbar = () => {
                       <div
                         className={`flex items-center rounded-full transition-all border ${
                           isOpen
-                            ? "bg-[#1E3A2B] text-white border-[#1E3A2B] shadow-xs"
+                            ? "bg-[#3B8A49] text-white border-[#3B8A49] shadow-xs"
                             : isActive
-                            ? "bg-[#1E3A2B]/10 dark:bg-white/10 text-[#1E3A2B] dark:text-white border-[#1E3A2B]/20 dark:border-white/20"
-                            : "bg-transparent text-[#1E3A2B] dark:text-white/90 border-transparent hover:bg-black/5 dark:hover:bg-white/5"
+                            ? "bg-[#3B8A49]/10 dark:bg-white/10 text-[#3B8A49] dark:text-white border-[#3B8A49]/30 dark:border-white/20"
+                            : "bg-transparent text-foreground/90 dark:text-white/90 border-transparent hover:bg-black/5 dark:hover:bg-white/5"
                         }`}
                       >
                         {/* ZONE 1 : CLIC SUR LE NOM → NAVIGATION VERS LA CATÉGORIE */}
@@ -264,7 +274,9 @@ export const Navbar = () => {
                           className={`pl-3.5 pr-1.5 py-1.5 text-[12px] 2xl:text-[13px] font-bold tracking-tight uppercase whitespace-nowrap transition-colors cursor-pointer ${
                             isOpen
                               ? "text-white"
-                              : "text-[#1E3A2B] dark:text-white/90 hover:text-[#D96B43]"
+                              : isActive
+                              ? "text-[#3B8A49] dark:text-white"
+                              : "text-foreground/90 dark:text-white/90 hover:text-[#3B8A49]"
                           }`}
                         >
                           {displayLabel}
@@ -288,7 +300,7 @@ export const Navbar = () => {
                           className={`pl-1 pr-2.5 py-1.5 flex items-center justify-center rounded-r-full transition-colors cursor-pointer ${
                             isOpen
                               ? "text-[#F2B705] hover:bg-white/10"
-                              : "text-[#1E3A2B] dark:text-white/70 hover:text-[#D96B43] hover:bg-black/5 dark:hover:bg-white/10"
+                              : "text-foreground/70 dark:text-white/70 hover:text-[#3B8A49] hover:bg-black/5 dark:hover:bg-white/10"
                           }`}
                         >
                           <ChevronDown
@@ -319,10 +331,10 @@ export const Navbar = () => {
               {/* Barre de titre de l'univers avec bouton fermeture discret */}
               <div className="flex items-center justify-between border-b border-border/80 pb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xs font-mono font-black text-[#D96B43] bg-[#D96B43]/10 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                  <span className="text-xs font-mono font-black text-[#3B8A49] bg-[#3B8A49]/10 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
                     Univers {currentOpenUniverse.number}
                   </span>
-                  <h3 className="font-display font-black text-xl text-[#1E3A2B] dark:text-white uppercase tracking-tight">
+                  <h3 className="font-display font-black text-xl text-foreground dark:text-white uppercase tracking-tight">
                     {currentOpenUniverse.name}
                   </h3>
                 </div>
@@ -330,7 +342,7 @@ export const Navbar = () => {
                 <div className="flex items-center gap-4">
                   <Link
                     to={`/${currentOpenUniverse.slug}`}
-                    className="text-xs font-black text-[#1E3A2B] dark:text-[#F2B705] hover:text-[#D96B43] transition-colors flex items-center gap-1.5 uppercase tracking-wider"
+                    className="text-xs font-black text-[#3B8A49] dark:text-[#F2B705] hover:text-[#2F6F3B] transition-colors flex items-center gap-1.5 uppercase tracking-wider"
                   >
                     <span>Voir tout l'univers ({currentOpenUniverse.shortTitle})</span>
                     <ArrowRight size={14} />
@@ -358,7 +370,7 @@ export const Navbar = () => {
                   <Link
                     key={sub.id}
                     to={`/${currentOpenUniverse.slug}/${sub.slug}`}
-                    className="bg-secondary/30 hover:bg-secondary/60 dark:bg-card dark:hover:bg-card/80 border border-border/80 hover:border-[#1E3A2B]/40 dark:hover:border-white/20 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
+                    className="bg-secondary/30 hover:bg-secondary/60 dark:bg-card dark:hover:bg-card/80 border border-border/80 hover:border-[#3B8A49]/50 dark:hover:border-white/20 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
                   >
                     {/* Grande Image Photographique Fidèle */}
                     <div className="relative aspect-16/10 w-full overflow-hidden bg-secondary">
@@ -374,7 +386,7 @@ export const Navbar = () => {
                     {/* Contenu Texte & Lien */}
                     <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-2">
                       <div>
-                        <h4 className="font-display font-black text-sm text-[#1E3A2B] dark:text-white group-hover:text-[#D96B43] transition-colors uppercase tracking-tight">
+                        <h4 className="font-display font-black text-sm text-foreground dark:text-white group-hover:text-[#3B8A49] transition-colors uppercase tracking-tight">
                           {sub.name}
                         </h4>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
@@ -382,7 +394,7 @@ export const Navbar = () => {
                         </p>
                       </div>
 
-                      <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#1E3A2B] dark:text-[#F2B705] group-hover:text-[#D96B43] transition-colors">
+                      <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#3B8A49] dark:text-[#F2B705] group-hover:text-[#2F6F3B] transition-colors">
                         <span className="text-[11px] font-mono uppercase tracking-wider">Explorer la gamme</span>
                         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -400,10 +412,27 @@ export const Navbar = () => {
         {mobileOpen && (
           <div className="min-[1200px]:hidden bg-background border-t border-border shadow-2xl max-h-[80vh] overflow-y-auto">
             <div className="w-full px-4 sm:px-6 py-4 space-y-4">
+              {/* Compte Utilisateur sur mobile */}
+              <Link
+                to={user ? "/account" : "/auth"}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-3 rounded-2xl bg-[#EBF4EE] dark:bg-white/5 border border-[#3B8A49]/30 text-xs font-bold text-[#3B8A49] dark:text-white"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-full bg-[#3B8A49] text-white flex items-center justify-center shrink-0">
+                    <User size={15} />
+                  </div>
+                  <span className="truncate">
+                    {user ? `Mon Compte (${user.email})` : "Connexion / Créer mon compte"}
+                  </span>
+                </div>
+                <ArrowRight size={14} className="text-[#3B8A49] shrink-0 ml-2" />
+              </Link>
+
               {/* Adresse sur mobile */}
               <div className="p-3 bg-secondary/40 rounded-2xl border border-border flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
-                  <MapPin size={16} className="text-[#D96B43] shrink-0" />
+                  <MapPin size={16} className="text-[#3B8A49] shrink-0" />
                   <span className="text-xs font-bold truncate">
                     {selectedAddress || "Douala • Pharmacie Kotto"}
                   </span>
@@ -413,7 +442,7 @@ export const Navbar = () => {
                     setMobileOpen(false);
                     setAddressModalOpen(true);
                   }}
-                  className="text-xs font-bold text-[#D96B43] underline shrink-0 ml-2 cursor-pointer"
+                  className="text-xs font-bold text-[#3B8A49] underline shrink-0 ml-2 cursor-pointer"
                 >
                   Modifier
                 </button>
@@ -422,7 +451,7 @@ export const Navbar = () => {
               {/* Bouton Devis Mobile */}
               <Link
                 to="/devis"
-                className="w-full py-2.5 bg-[#D96B43] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
+                className="w-full py-2.5 bg-[#D96B43] hover:bg-[#c45b34] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs"
               >
                 <FileText size={15} />
                 <span>Demander un devis traiteur</span>
@@ -445,7 +474,7 @@ export const Navbar = () => {
                     <div key={univ.id} className="border border-border/80 rounded-2xl overflow-hidden">
                       <div
                         className={`w-full flex items-center justify-between transition-colors ${
-                          isActive ? "bg-[#1E3A2B] text-white" : "bg-secondary/30 text-foreground"
+                          isActive ? "bg-[#3B8A49] text-white" : "bg-secondary/30 text-foreground"
                         }`}
                       >
                         {/* Clic sur le NOM -> Navigation vers l'univers */}
@@ -476,7 +505,7 @@ export const Navbar = () => {
                         <div className="bg-background p-3 space-y-2 border-t border-border/40 animate-in fade-in duration-150">
                           <Link
                             to={`/${univ.slug}`}
-                            className="block px-3 py-2 rounded-xl text-xs font-bold text-[#D96B43] bg-secondary/30 hover:bg-secondary"
+                            className="block px-3 py-2 rounded-xl text-xs font-bold text-[#3B8A49] bg-secondary/30 hover:bg-secondary"
                           >
                             → Voir tous les produits ({univ.shortTitle})
                           </Link>
@@ -515,7 +544,7 @@ export const Navbar = () => {
                   </Link>
                   <Link
                     to="/builder"
-                    className="px-3 py-2 rounded-xl text-xs font-bold bg-secondary/30 hover:bg-secondary block text-[#D96B43]"
+                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[#EBF4EE] text-[#3B8A49] block"
                   >
                     🥣 Composer ma salade
                   </Link>
@@ -546,7 +575,7 @@ export const Navbar = () => {
           <div className="bg-white dark:bg-[#15241C] text-foreground w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-border space-y-6 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-border/80 pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#D96B43]/10 text-[#D96B43] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#3B8A49]/10 text-[#3B8A49] flex items-center justify-center">
                   <MapPin size={20} />
                 </div>
                 <div>
@@ -575,7 +604,7 @@ export const Navbar = () => {
                   placeholder="Ex : Bonapriso, Rue des Palmiers..."
                   value={customAddressInput}
                   onChange={(e) => setCustomAddressInput(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/40 border border-border text-xs sm:text-sm focus:outline-none focus:border-[#1E3A2B]"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/40 border border-border text-xs sm:text-sm focus:outline-none focus:border-[#3B8A49]"
                 />
                 <button
                   onClick={() => {
@@ -583,7 +612,7 @@ export const Navbar = () => {
                       handleSaveAddress(customAddressInput.trim());
                     }
                   }}
-                  className="bg-[#1E3A2B] hover:bg-[#162a1f] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition cursor-pointer"
+                  className="bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition cursor-pointer shadow-xs"
                 >
                   Valider
                 </button>
@@ -602,7 +631,7 @@ export const Navbar = () => {
                     onClick={() => handleSaveAddress(quarter)}
                     className={`px-3 py-2 rounded-xl text-xs text-left font-medium border transition cursor-pointer flex items-center justify-between ${
                       selectedAddress === quarter
-                        ? "bg-[#1E3A2B] text-white border-[#1E3A2B]"
+                        ? "bg-[#3B8A49] text-white border-[#3B8A49]"
                         : "bg-secondary/30 hover:bg-secondary border-border/80 text-foreground"
                     }`}
                   >

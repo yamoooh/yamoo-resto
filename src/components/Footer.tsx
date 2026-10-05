@@ -4,7 +4,7 @@ import Logo from "./Logo";
 
 export const Footer = () => {
   return (
-    <footer className="bg-[#1E3A2B] text-white mt-24 border-t border-white/10">
+    <footer className="bg-[#2F6F3B] text-white mt-24 border-t border-white/10">
       {/* 5 COLONNES */}
       <div className="container-tight py-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-5 text-sm">
         {/* Colonne 1 : Identité & Localisation */}

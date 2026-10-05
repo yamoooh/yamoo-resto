@@ -103,7 +103,7 @@ export const FilterDrawer = ({
         {/* HEADER DU VOLET */}
         <div className="p-6 border-b border-border flex items-center justify-between bg-secondary/30">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#1E3A2B] text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#3B8A49] text-white flex items-center justify-center">
               <SlidersHorizontal size={18} />
             </div>
             <div>
@@ -141,7 +141,7 @@ export const FilterDrawer = ({
                   onClick={() => handleSortChange(opt.id as any)}
                   className={`px-3 py-2 rounded-xl text-xs font-bold transition text-left flex items-center justify-between cursor-pointer border ${
                     localFilters.sortBy === opt.id
-                      ? "bg-[#1E3A2B] text-white border-[#1E3A2B] shadow-xs"
+                      ? "bg-[#3B8A49] text-white border-[#3B8A49] shadow-xs"
                       : "bg-background hover:bg-secondary border-border text-foreground"
                   }`}
                 >
@@ -166,7 +166,7 @@ export const FilterDrawer = ({
                     onClick={() => handleDietToggle(diet.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold transition border flex items-center gap-1.5 cursor-pointer ${
                       isChecked
-                        ? "bg-[#1E3A2B] text-white border-[#1E3A2B]"
+                        ? "bg-[#3B8A49] text-white border-[#3B8A49]"
                         : "bg-background hover:bg-secondary text-foreground border-border"
                     }`}
                   >
@@ -246,7 +246,7 @@ export const FilterDrawer = ({
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-[#1E3A2B] hover:bg-[#162a1f] text-white py-3 px-6 rounded-full text-xs font-bold transition shadow-soft flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3 px-6 rounded-full text-xs font-bold transition shadow-soft flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>VOIR LES {totalResults} PRODUITS</span>
           </button>
