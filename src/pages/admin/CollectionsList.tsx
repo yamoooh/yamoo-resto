@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Plus, Edit2, Trash2, Sparkles, Save, X, Calendar } from "lucide-react";
+import { Plus, Edit2, Trash2, Sparkles, Save, X, Calendar, Upload } from "lucide-react";
 import { useData, CollectionData } from "../../contexts/DataContext";
 
 export const CollectionsList: React.FC = () => {
-  const { collections, products, mediaLibrary, saveCollection, deleteCollection } = useData();
+  const { collections, products, mediaLibrary, saveCollection, deleteCollection, addMediaItem } = useData();
   const [editingCol, setEditingCol] = useState<CollectionData | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -34,6 +34,26 @@ export const CollectionsList: React.FC = () => {
     setFormStart("");
     setFormEnd("");
     setIsCreating(true);
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result as string;
+      const newMedia = addMediaItem({
+        filename: file.name,
+        url: base64Url,
+        type: file.type,
+        dimensions: "Personnalisé",
+        fileSize: `${Math.round(file.size / 1024)} KB`,
+        usedBy: [formTitle || "Collection"],
+      });
+      setFormImage(newMedia.url);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -132,17 +152,36 @@ export const CollectionsList: React.FC = () => {
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                 Bannière Visuelle
               </label>
-              <select
-                value={formImage}
-                onChange={(e) => setFormImage(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
-              >
-                {mediaLibrary.map((m) => (
-                  <option key={m.id} value={m.url}>
-                    {m.filename}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  {formImage && (
+                    <img src={formImage} alt="Aperçu" className="w-16 h-16 rounded-xl object-cover border border-[#E3ECE6]" />
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <select
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
+                    >
+                      {mediaLibrary.map((m) => (
+                        <option key={m.id} value={m.url}>
+                          {m.filename}
+                        </option>
+                      ))}
+                    </select>
+                    <label className="w-full py-2 px-3 rounded-xl bg-[#EBF4EE] hover:bg-[#d8eadd] text-[#3B8A49] font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                      <Upload size={14} />
+                      <span>Téléverser une image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="sm:col-span-3">

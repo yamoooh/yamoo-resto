@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Save, CheckCircle2, Megaphone, LayoutTemplate, Phone, Mail, MapPin } from "lucide-react";
+import { Save, CheckCircle2, Megaphone, LayoutTemplate, Phone, Mail, MapPin, Upload } from "lucide-react";
 import { useData } from "../../contexts/DataContext";
 
 export const SiteContent: React.FC = () => {
-  const { siteContent, mediaLibrary, updateSiteContent } = useData();
+  const { siteContent, mediaLibrary, updateSiteContent, addMediaItem } = useData();
   const [success, setSuccess] = useState(false);
 
   // Local State
@@ -23,6 +23,26 @@ export const SiteContent: React.FC = () => {
       copy[index] = { ...copy[index], [field]: value };
       return copy;
     });
+  };
+
+  const handleSlideImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result as string;
+      const newMedia = addMediaItem({
+        filename: file.name,
+        url: base64Url,
+        type: file.type,
+        dimensions: "Personnalisé",
+        fileSize: `${Math.round(file.size / 1024)} KB`,
+        usedBy: [`Slide ${index + 1}`],
+      });
+      handleSlideChange(index, "image", newMedia.url);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -180,17 +200,36 @@ export const SiteContent: React.FC = () => {
                     <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                       Image d'arrière-plan
                     </label>
-                    <select
-                      value={slide.image}
-                      onChange={(e) => handleSlideChange(index, "image", e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
-                    >
-                      {mediaLibrary.map((m) => (
-                        <option key={m.id} value={m.url}>
-                          {m.filename}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="space-y-3">
+                      <div className="flex gap-3">
+                        {slide.image && (
+                          <img src={slide.image} alt="Aperçu" className="w-16 h-16 rounded-xl object-cover border border-[#E3ECE6]" />
+                        )}
+                        <div className="flex-1 space-y-2">
+                          <select
+                            value={slide.image}
+                            onChange={(e) => handleSlideChange(index, "image", e.target.value)}
+                            className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
+                          >
+                            {mediaLibrary.map((m) => (
+                              <option key={m.id} value={m.url}>
+                                {m.filename}
+                              </option>
+                            ))}
+                          </select>
+                          <label className="w-full py-2 px-3 rounded-xl bg-[#EBF4EE] hover:bg-[#d8eadd] text-[#3B8A49] font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            <Upload size={14} />
+                            <span>Téléverser une image</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleSlideImageUpload(index, e)}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div>

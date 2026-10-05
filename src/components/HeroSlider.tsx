@@ -52,31 +52,30 @@ export const HeroSlider = () => {
     startTimeRef.current = Date.now();
   }, [slides.length]);
 
-  // Défilement automatique continu toutes les 5 secondes
+  // Défilement automatique continu
   useEffect(() => {
-    startTimeRef.current = Date.now();
-
-    timerRef.current = setTimeout(() => {
+    const timer = setInterval(() => {
       nextSlide();
     }, SLIDE_DURATION);
 
+    return () => clearInterval(timer);
+  }, [nextSlide, currentSlide]);
+
+  // Animation de la barre de progression
+  useEffect(() => {
     const updateProgress = () => {
       const elapsed = Date.now() - startTimeRef.current;
       const currentPct = Math.min(100, (elapsed / SLIDE_DURATION) * 100);
       setProgress(currentPct);
-
-      if (elapsed < SLIDE_DURATION) {
-        animationFrameRef.current = requestAnimationFrame(updateProgress);
-      }
+      animationFrameRef.current = requestAnimationFrame(updateProgress);
     };
 
     animationFrameRef.current = requestAnimationFrame(updateProgress);
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [currentSlide, nextSlide]);
+  }, [currentSlide]);
 
   return (
     <section

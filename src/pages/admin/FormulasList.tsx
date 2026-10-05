@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Plus, Edit2, Trash2, Layers, Save, X, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, Layers, Save, X, Image as ImageIcon, Upload } from "lucide-react";
 import { useData, FormulaData } from "../../contexts/DataContext";
 
 export const FormulasList: React.FC = () => {
-  const { formulas, mediaLibrary, saveFormula, deleteFormula } = useData();
+  const { formulas, mediaLibrary, saveFormula, deleteFormula, addMediaItem } = useData();
   const [editingFormula, setEditingFormula] = useState<FormulaData | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -31,6 +31,26 @@ export const FormulasList: React.FC = () => {
     setFormImage("/assets/formule-buffet.jpg");
     setFormCategory("Déjeuner");
     setIsCreating(true);
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result as string;
+      const newMedia = addMediaItem({
+        filename: file.name,
+        url: base64Url,
+        type: file.type,
+        dimensions: "Personnalisé",
+        fileSize: `${Math.round(file.size / 1024)} KB`,
+        usedBy: [formName || "Nouvelle Formule"],
+      });
+      setFormImage(newMedia.url);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -151,17 +171,36 @@ export const FormulasList: React.FC = () => {
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                 Image de la formule
               </label>
-              <select
-                value={formImage}
-                onChange={(e) => setFormImage(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
-              >
-                {mediaLibrary.map((m) => (
-                  <option key={m.id} value={m.url}>
-                    {m.filename}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  {formImage && (
+                    <img src={formImage} alt="Aperçu" className="w-16 h-16 rounded-xl object-cover border border-[#E3ECE6]" />
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <select
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
+                    >
+                      {mediaLibrary.map((m) => (
+                        <option key={m.id} value={m.url}>
+                          {m.filename}
+                        </option>
+                      ))}
+                    </select>
+                    <label className="w-full py-2 px-3 rounded-xl bg-[#EBF4EE] hover:bg-[#d8eadd] text-[#3B8A49] font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                      <Upload size={14} />
+                      <span>Téléverser une image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="sm:col-span-3 flex justify-end pt-2 border-t border-[#E3ECE6]">

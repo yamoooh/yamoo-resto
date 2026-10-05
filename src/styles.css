@@ -155,7 +155,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: marquee 75s linear infinite;
+  animation: marquee 120s linear infinite; /* Ralenti de 75s à 120s */
 }
 .animate-marquee:hover {
   animation-play-state: paused;
@@ -170,15 +170,15 @@ h1, h2, h3, h4, h5, h6 {
 /* Hero Cinematographic Camera Animations (Zoom et travelling bien visibles) */
 @keyframes hero-zoom-in {
   0% { transform: scale(1.00); }
-  100% { transform: scale(1.15); }
+  100% { transform: scale(1.25); } /* De 1.15 à 1.25 */
 }
 @keyframes hero-pan-h {
-  0% { transform: scale(1.12) translate3d(0, 0, 0); }
-  100% { transform: scale(1.12) translate3d(-35px, 0, 0); }
+  0% { transform: scale(1.20) translate3d(0, 0, 0); } /* De 1.12 à 1.20 */
+  100% { transform: scale(1.20) translate3d(-50px, 0, 0); } /* De -35px à -50px */
 }
 @keyframes hero-zoom-out {
-  0% { transform: scale(1.15); }
-  100% { transform: scale(1.02); }
+  0% { transform: scale(1.25); } /* De 1.15 à 1.25 */
+  100% { transform: scale(1.05); } /* De 1.02 à 1.05 */
 }
 
 .animate-hero-zoom-in {

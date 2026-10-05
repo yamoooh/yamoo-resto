@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Edit2, Sparkles, ChefHat, Save, X, Eye, ExternalLink } from "lucide-react";
+import { Edit2, Sparkles, ChefHat, Save, X, Eye, ExternalLink, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useData, SignatureData } from "../../contexts/DataContext";
 
 export const SignaturesList: React.FC = () => {
-  const { signatures, mediaLibrary, saveSignature } = useData();
+  const { signatures, mediaLibrary, saveSignature, addMediaItem } = useData();
   const [editingSig, setEditingSig] = useState<SignatureData | null>(null);
 
   const [formName, setFormName] = useState("");
@@ -26,6 +26,26 @@ export const SignaturesList: React.FC = () => {
     setFormImage(sig.image);
     setFormIngredients(sig.ingredients.join("\n"));
     setFormBenefits(sig.benefits.join("\n"));
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result as string;
+      const newMedia = addMediaItem({
+        filename: file.name,
+        url: base64Url,
+        type: file.type,
+        dimensions: "Personnalisé",
+        fileSize: `${Math.round(file.size / 1024)} KB`,
+        usedBy: [formName || "Signature"],
+      });
+      setFormImage(newMedia.url);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -187,17 +207,36 @@ export const SignaturesList: React.FC = () => {
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
                 Visuel de la Signature
               </label>
-              <select
-                value={formImage}
-                onChange={(e) => setFormImage(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
-              >
-                {mediaLibrary.map((m) => (
-                  <option key={m.id} value={m.url}>
-                    {m.filename}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  {formImage && (
+                    <img src={formImage} alt="Aperçu" className="w-16 h-16 rounded-xl object-cover border border-[#E3ECE6]" />
+                  )}
+                  <div className="flex-1 space-y-2">
+                    <select
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-mono outline-hidden cursor-pointer"
+                    >
+                      {mediaLibrary.map((m) => (
+                        <option key={m.id} value={m.url}>
+                          {m.filename}
+                        </option>
+                      ))}
+                    </select>
+                    <label className="w-full py-2 px-3 rounded-xl bg-[#EBF4EE] hover:bg-[#d8eadd] text-[#3B8A49] font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                      <Upload size={14} />
+                      <span>Téléverser une image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="sm:col-span-12 flex justify-end gap-3 pt-3 border-t border-[#E3ECE6]">
