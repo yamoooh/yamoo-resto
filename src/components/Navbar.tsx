@@ -264,8 +264,8 @@ export const Navbar = () => {
                           isOpen
                             ? "bg-[#3B8A49] text-white border-[#3B8A49] shadow-xs"
                             : isActive
-                            ? "bg-[#EBF4EE] dark:bg-white/10 text-[#3B8A49] dark:text-white border-[#3B8A49] shadow-xs"
-                            : "bg-white dark:bg-[#15241C] text-[#3B8A49] border-[#3B8A49] hover:bg-[#EBF4EE] dark:hover:bg-white/5"
+                            ? "bg-[#3B8A49]/10 dark:bg-white/10 text-[#3B8A49] dark:text-white border-[#3B8A49]/30 dark:border-white/20"
+                            : "bg-transparent text-foreground/90 dark:text-white/90 border-transparent hover:bg-black/5 dark:hover:bg-white/5"
                         }`}
                       >
                         {/* ZONE 1 : CLIC SUR LE NOM → NAVIGATION VERS LA CATÉGORIE */}
@@ -274,7 +274,9 @@ export const Navbar = () => {
                           className={`pl-3.5 pr-1.5 py-1.5 text-[12px] 2xl:text-[13px] font-bold tracking-tight uppercase whitespace-nowrap transition-colors cursor-pointer ${
                             isOpen
                               ? "text-white"
-                              : "text-[#3B8A49]"
+                              : isActive
+                              ? "text-[#3B8A49] dark:text-white"
+                              : "text-foreground/90 dark:text-white/90 hover:text-[#3B8A49]"
                           }`}
                         >
                           {displayLabel}
@@ -297,14 +299,14 @@ export const Navbar = () => {
                           }
                           className={`pl-1 pr-2.5 py-1.5 flex items-center justify-center rounded-r-full transition-colors cursor-pointer ${
                             isOpen
-                              ? "text-white hover:bg-white/10"
-                              : "text-[#3B8A49] hover:bg-[#3B8A49]/10"
+                              ? "text-[#F2B705] hover:bg-white/10"
+                              : "text-foreground/70 dark:text-white/70 hover:text-[#3B8A49] hover:bg-black/5 dark:hover:bg-white/10"
                           }`}
                         >
                           <ChevronDown
                             size={14}
                             className={`transition-transform duration-200 shrink-0 ${
-                              isOpen ? "rotate-180 text-white" : "text-[#3B8A49]"
+                              isOpen ? "rotate-180 text-[#F2B705]" : "opacity-75"
                             }`}
                           />
                         </button>
