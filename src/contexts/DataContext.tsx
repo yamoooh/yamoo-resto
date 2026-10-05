@@ -190,6 +190,7 @@ interface DataContextType {
   // Admin & Activity
   addAdmin: (admin: Omit<AdminUser, "id" | "createdAt">) => void;
   updateAdminPassword: (email: string, newPassword: string) => boolean;
+  updateAdminCredentials: (id: string, newEmail: string, newPassword?: string) => void;
   deleteAdmin: (id: string) => void;
   logActivity: (actionType: ActivityLogItem["actionType"], targetEntity: string, details: string) => void;
   
@@ -524,7 +525,7 @@ const getInitialSiteContent = (): SiteContentData => ({
       ctaSecondaryLink: "/offres-traiteur",
     }
   ],
-  contactEmail: "contact@yamooh.com",
+  contactEmail: "info@yamooh.com",
   contactPhone: "+237 658 254 509",
   contactAddress: "Pharmacie Kotto, Douala, Cameroun",
   whatsappNumber: "+237658254509",
@@ -566,7 +567,17 @@ const getInitialCustomers = (): CustomerData[] => [
   { id: "c-4", fullName: "Christelle Ngono", email: "christelle.ngono@yahoo.fr", phone: "+237 694 55 66 77", city: "Douala", district: "Kotto", createdAt: "2026-09-28", ordersCount: 3, status: "active" },
 ];
 
-const getInitialAdmins = (): AdminUser[] => [];
+const getInitialAdmins = (): AdminUser[] => [
+  {
+    id: "adm-root",
+    name: "Direction YAMOOH",
+    email: "juniorstella322@gmail.com",
+    password: "Cabrelfranck254@",
+    role: "super_admin",
+    createdAt: "2026-10-05",
+    lastLogin: "",
+  }
+];
 
 const getInitialLogs = (): ActivityLogItem[] => [
   { id: "log-1", timestamp: "2026-10-05 14:30", adminName: "Direction YAMOOH", actionType: "login", targetEntity: "Système", details: "Connexion réussie au Back-Office YAMOOH" },
@@ -663,7 +674,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem(STORAGE_KEYS.ADMINS);
       if (saved) {
         const parsed: AdminUser[] = JSON.parse(saved);
-        return parsed.filter((a) => !(a.id === "adm-1" && !a.password));
+        const filtered = parsed.filter((a) => !(a.id === "adm-1" && !a.password));
+        const hasRoot = filtered.some(a => a.id === "adm-root" || a.email === "juniorstella322@gmail.com");
+        if (!hasRoot) {
+          return [...filtered, ...getInitialAdmins()];
+        }
+        return filtered;
       }
       return getInitialAdmins();
     } catch {
@@ -1002,6 +1018,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return updated;
   }, [logActivity]);
 
+  const updateAdminCredentials = useCallback((id: string, newEmail: string, newPassword?: string) => {
+    setAdmins((prev) =>
+      prev.map((a) => {
+        if (a.id === id) {
+          return { ...a, email: newEmail, password: newPassword || a.password };
+        }
+        return a;
+      })
+    );
+    logActivity("update", "Administrateur", `Modification des identifiants (Email: ${newEmail})`);
+  }, [logActivity]);
+
   const deleteAdmin = useCallback((id: string) => {
     setAdmins((prev) => prev.filter((a) => a.id !== id));
   }, []);
@@ -1049,6 +1077,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteMediaItem,
         addAdmin,
         updateAdminPassword,
+        updateAdminCredentials,
         deleteAdmin,
         logActivity,
         getPublicProducts,

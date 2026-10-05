@@ -1,39 +1,32 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, ArrowRight, Lock, Mail, AlertCircle, Sparkles, Eye, EyeOff, UserPlus, User, CheckCircle2 } from "lucide-react";
+import { Shield, ArrowRight, Lock, Mail, AlertCircle, Eye, EyeOff, Key } from "lucide-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
-import { useData } from "../../contexts/DataContext";
 
 export const AdminLogin: React.FC = () => {
-  const { login, setupFirstAdmin } = useAdminAuth();
-  const { admins } = useData();
+  const { login, resetPassword } = useAdminAuth();
   const navigate = useNavigate();
 
-  // If no admin exists in the database, allow first-setup mode
-  const canCreateFirstAdmin = admins.length === 0;
+  const [mode, setMode] = useState<"login" | "forgot">("login");
 
-  // Active form mode: "login" or "setup" (only possible if canCreateFirstAdmin)
-  const [mode, setMode] = useState<"login" | "setup">(canCreateFirstAdmin ? "setup" : "login");
-
-  // Login fields
+  // Champs de connexion
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Setup fields
-  const [setupName, setSetupName] = useState("Direction YAMOOH");
-  const [setupEmail, setSetupEmail] = useState("admin@yamooh.com");
-  const [setupPassword, setSetupPassword] = useState("");
-  const [setupConfirmPassword, setSetupConfirmPassword] = useState("");
-  const [showSetupPassword, setShowSetupPassword] = useState(false);
-  const [showSetupConfirmPassword, setShowSetupConfirmPassword] = useState(false);
+  // Champs mot de passe oublié
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     const res = await login(email, password);
@@ -46,33 +39,27 @@ export const AdminLogin: React.FC = () => {
     }
   };
 
-  const handleSetupSubmit = async (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (!setupName.trim() || !setupEmail.trim() || !setupPassword) {
-      setError("Veuillez renseigner tous les champs obligatoires.");
-      return;
-    }
-
-    if (setupPassword.length < 6) {
-      setError("Le mot de passe doit comporter au moins 6 caractères.");
-      return;
-    }
-
-    if (setupPassword !== setupConfirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+    setSuccess("");
+    
+    if (newPassword.length < 6) {
+      setError("Le nouveau mot de passe doit comporter au moins 6 caractères.");
       return;
     }
 
     setLoading(true);
-    const res = await setupFirstAdmin(setupName.trim(), setupEmail.trim(), setupPassword);
+    const res = await resetPassword(resetEmail, newPassword);
     setLoading(false);
 
     if (res.success) {
-      navigate("/admin");
+      setSuccess("Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.");
+      setMode("login");
+      setEmail(resetEmail);
+      setPassword("");
     } else {
-      setError(res.error || "Erreur lors de l'initialisation du premier administrateur.");
+      setError(res.error || "Erreur lors de la mise à jour.");
     }
   };
 
@@ -95,47 +82,11 @@ export const AdminLogin: React.FC = () => {
             Back-Office YAMOOH
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            {mode === "setup" && canCreateFirstAdmin
-              ? "Initialisez le premier compte Super Administrateur de la plateforme"
-              : "Connectez-vous pour administrer les contenus, produits et médias"}
+            {mode === "login"
+              ? "Connectez-vous pour administrer les contenus"
+              : "Réinitialisez votre mot de passe administrateur"}
           </p>
         </div>
-
-        {/* ONGLETS CONDITIONNELS : UNIQUEMENT SI AUCUN ADMIN N'A ENCORE ÉTÉ CRÉÉ */}
-        {canCreateFirstAdmin && (
-          <div className="flex bg-[#FAF8F5] p-1 rounded-2xl border border-[#E3ECE6] mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("setup");
-                setError("");
-              }}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                mode === "setup"
-                  ? "bg-[#3B8A49] text-white shadow-xs"
-                  : "text-muted-foreground hover:text-[#1E3A2B]"
-              }`}
-            >
-              <UserPlus size={14} />
-              <span>Créer 1er Admin</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("login");
-                setError("");
-              }}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                mode === "login"
-                  ? "bg-[#3B8A49] text-white shadow-xs"
-                  : "text-muted-foreground hover:text-[#1E3A2B]"
-              }`}
-            >
-              <Lock size={14} />
-              <span>Connexion</span>
-            </button>
-          </div>
-        )}
 
         {error && (
           <div className="mb-6 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl flex items-center gap-2">
@@ -143,201 +94,154 @@ export const AdminLogin: React.FC = () => {
             <span>{error}</span>
           </div>
         )}
+        
+        {success && (
+          <div className="mb-6 p-3.5 bg-green-50 border border-green-200 text-green-700 text-xs rounded-2xl flex items-center gap-2">
+            <Shield size={16} className="shrink-0" />
+            <span>{success}</span>
+          </div>
+        )}
 
-        {/* 1. FORMULAIRE DE CRÉATION DU PREMIER ADMIN (DISPARAÎT DÈS CRÉATION) */}
-        {mode === "setup" && canCreateFirstAdmin ? (
-          <form onSubmit={handleSetupSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[#1E3A2B] uppercase mb-1.5 font-mono">
-                Nom complet
-              </label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                <input
-                  type="text"
-                  value={setupName}
-                  onChange={(e) => setSetupName(e.target.value)}
-                  placeholder="Ex: Direction YAMOOH"
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E3A2B] uppercase mb-1.5 font-mono">
-                Adresse E-mail
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                <input
-                  type="email"
-                  value={setupEmail}
-                  onChange={(e) => setSetupEmail(e.target.value)}
-                  placeholder="admin@yamooh.com"
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E3A2B] uppercase mb-1.5 font-mono">
-                Mot de passe
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                <input
-                  type={showSetupPassword ? "text" : "password"}
-                  value={setupPassword}
-                  onChange={(e) => setSetupPassword(e.target.value)}
-                  placeholder="Minimum 6 caractères"
-                  required
-                  minLength={6}
-                  className="w-full pl-10 pr-11 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSetupPassword(!showSetupPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer p-1 transition"
-                  title={showSetupPassword ? "Masquer" : "Afficher"}
-                >
-                  {showSetupPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1E3A2B] uppercase mb-1.5 font-mono">
-                Confirmation du mot de passe
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                <input
-                  type={showSetupConfirmPassword ? "text" : "password"}
-                  value={setupConfirmPassword}
-                  onChange={(e) => setSetupConfirmPassword(e.target.value)}
-                  placeholder="Répétez le mot de passe"
-                  required
-                  minLength={6}
-                  className="w-full pl-10 pr-11 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSetupConfirmPassword(!showSetupConfirmPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer p-1 transition"
-                  title={showSetupConfirmPassword ? "Masquer" : "Afficher"}
-                >
-                  {showSetupConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer mt-4"
-            >
-              <span>{loading ? "Création en cours..." : "Créer le compte Super Admin"}</span>
-              <ArrowRight size={14} />
-            </button>
-          </form>
-        ) : (
-          /* 2. FORMULAIRE DE CONNEXION PRINCIPAL */
+        {mode === "login" ? (
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-[#1E3A2B] uppercase mb-1.5 font-mono">
-                Adresse E-mail
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
+                Adresse e-mail admin
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@yamooh.com"
+                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
                 />
+                <Mail size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-[#1E3A2B] uppercase font-mono">
-                  Mot de passe
-                </label>
-                <Link
-                  to="/admin/forgot-password"
-                  className="text-[11px] text-[#3B8A49] hover:underline font-semibold"
-                >
-                  Mot de passe oublié ?
-                </Link>
-              </div>
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
+                Mot de passe
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  className="w-full pl-10 pr-10 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden"
                   required
-                  className="w-full pl-10 pr-11 py-3 bg-[#FAF8F5] border border-[#E3ECE6] focus:border-[#3B8A49] focus:bg-white rounded-2xl text-xs font-medium outline-hidden transition"
                 />
+                <Lock size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer p-1 transition"
-                  title={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("forgot");
+                  setError("");
+                  setSuccess("");
+                }}
+                className="text-[11px] font-bold text-[#3B8A49] hover:underline cursor-pointer"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer mt-2"
+              className="w-full bg-[#1E3A2B] hover:bg-[#162B20] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
             >
-              <span>{loading ? "Connexion en cours..." : "Se connecter au Back-Office"}</span>
-              <ArrowRight size={14} />
+              <Shield size={16} />
+              <span>{loading ? "Vérification..." : "Accéder au Back-Office"}</span>
             </button>
+          </form>
+        ) : (
+          <form onSubmit={handleResetSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
+                Adresse e-mail admin
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="Votre email"
+                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden"
+                  required
+                />
+                <Mail size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
+                Nouveau mot de passe
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-10 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden"
+                  required
+                />
+                <Key size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3.5 top-3.5 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
+                >
+                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+            >
+              <span>{loading ? "Mise à jour..." : "Réinitialiser le mot de passe"}</span>
+            </button>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError("");
+                  setSuccess("");
+                }}
+                className="text-xs text-muted-foreground hover:text-[#1E3A2B] flex items-center justify-center gap-1 mx-auto cursor-pointer"
+              >
+                <ArrowRight size={14} className="rotate-180" />
+                <span>Retour à la connexion</span>
+              </button>
+            </div>
           </form>
         )}
 
-        {/* LIEN DE BAS DE PAGE CONDITIONNEL */}
-        <div className="mt-8 pt-6 border-t border-[#E3ECE6] flex flex-col items-center gap-2 text-center">
-          {canCreateFirstAdmin && mode === "login" && (
-            <button
-              type="button"
-              onClick={() => {
-                setMode("setup");
-                setError("");
-              }}
-              className="text-xs text-[#3B8A49] hover:underline font-bold flex items-center gap-1.5 cursor-pointer"
-            >
-              <UserPlus size={14} />
-              <span>Nouveau sur le système ? Créer le premier compte administrateur</span>
-            </button>
-          )}
-
-          {canCreateFirstAdmin && mode === "setup" && (
-            <button
-              type="button"
-              onClick={() => {
-                setMode("login");
-                setError("");
-              }}
-              className="text-xs text-[#3B8A49] hover:underline font-bold flex items-center gap-1.5 cursor-pointer"
-            >
-              <Lock size={14} />
-              <span>Déjà initialisé ? Se connecter</span>
-            </button>
-          )}
-
-          <Link to="/" className="text-xs text-muted-foreground hover:text-[#3B8A49] transition mt-1">
-            ← Retourner sur le site public
+        <div className="mt-8 pt-6 border-t border-[#E3ECE6] text-center">
+          <Link
+            to="/"
+            className="text-[11px] text-muted-foreground hover:text-[#1E3A2B] font-mono font-bold uppercase tracking-widest inline-flex items-center gap-1 transition"
+          >
+            <span>← Retour au site public</span>
           </Link>
         </div>
       </div>

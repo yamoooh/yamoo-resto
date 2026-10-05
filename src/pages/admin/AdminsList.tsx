@@ -1,18 +1,28 @@
 import React, { useState } from "react";
-import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
+import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock, Eye, EyeOff, Edit2 } from "lucide-react";
 import { useData, AdminUser } from "../../contexts/DataContext";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
 
 export const AdminsList: React.FC = () => {
-  const { admins, addAdmin, deleteAdmin } = useData();
+  const { admins, addAdmin, deleteAdmin, updateAdminCredentials } = useData();
   const { currentAdmin } = useAdminAuth();
+  
   const [isCreating, setIsCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
+  // Champs création
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<AdminUser["role"]>("editor");
+
+  // Champs édition
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
+  const isSuperAdmin = currentAdmin?.role === "super_admin";
 
   const handleCreateAdmin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +38,23 @@ export const AdminsList: React.FC = () => {
     setIsCreating(false);
   };
 
-  const isSuperAdmin = currentAdmin?.role === "super_admin";
+  const startEdit = (admin: AdminUser) => {
+    setEditingId(admin.id);
+    setEditEmail(admin.email);
+    setEditPassword(""); // Par défaut vide (ne change pas le mdp si vide)
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditEmail("");
+    setEditPassword("");
+  };
+
+  const handleEditSubmit = (e: React.FormEvent, adminId: string) => {
+    e.preventDefault();
+    updateAdminCredentials(adminId, editEmail, editPassword || undefined);
+    cancelEdit();
+  };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-16">
@@ -159,57 +185,127 @@ export const AdminsList: React.FC = () => {
           <thead>
             <tr className="border-b border-[#E3ECE6] bg-[#FAF8F5]/80 text-[10.5px] font-mono uppercase font-bold text-muted-foreground">
               <th className="py-3.5 px-4">Administrateur</th>
-              <th className="py-3.5 px-4">E-mail</th>
+              <th className="py-3.5 px-4">E-mail / Mot de Passe</th>
               <th className="py-3.5 px-4">Rôle</th>
               <th className="py-3.5 px-4">Dernière Connexion</th>
               <th className="py-3.5 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E3ECE6] text-xs">
-            {admins.map((admin) => (
-              <tr key={admin.id} className="hover:bg-[#FAF8F5]/50 transition">
-                <td className="py-3.5 px-4 font-bold text-[#1E3A2B]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-[#3B8A49] text-white flex items-center justify-center font-bold text-xs">
-                      {admin.name.charAt(0)}
+            {admins.map((admin) => {
+              const isEditing = editingId === admin.id;
+              // On permet l'édition de n'importe quel compte par le super admin,
+              // OU l'édition de son PROPRE compte par n'importe qui
+              const canEdit = isSuperAdmin || currentAdmin?.id === admin.id;
+
+              return (
+                <tr key={admin.id} className="hover:bg-[#FAF8F5]/50 transition">
+                  <td className="py-3.5 px-4 font-bold text-[#1E3A2B] align-top">
+                    <div className="flex items-center gap-2.5 mt-1">
+                      <div className="w-7 h-7 rounded-full bg-[#3B8A49] text-white flex items-center justify-center font-bold text-xs">
+                        {admin.name.charAt(0)}
+                      </div>
+                      <span>{admin.name}</span>
                     </div>
-                    <span>{admin.name}</span>
-                  </div>
-                </td>
-                <td className="py-3.5 px-4 font-mono text-muted-foreground">{admin.email}</td>
-                <td className="py-3.5 px-4">
-                  <span
-                    className={`inline-block px-2.5 py-1 rounded-full font-mono text-[10px] font-bold uppercase ${
-                      admin.role === "super_admin"
-                        ? "bg-amber-100 text-amber-800"
-                        : admin.role === "admin"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {admin.role.replace("_", " ")}
-                  </span>
-                </td>
-                <td className="py-3.5 px-4 font-mono text-muted-foreground text-[11px]">
-                  {admin.lastLogin || "Récemment"}
-                </td>
-                <td className="py-3.5 px-4 text-right">
-                  {isSuperAdmin && admin.role !== "super_admin" && (
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`Supprimer l'accès de l'administrateur « ${admin.name} » ?`)) {
-                          deleteAdmin(admin.id);
-                        }
-                      }}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                      title="Supprimer l'administrateur"
+                  </td>
+                  <td className="py-3.5 px-4 align-top">
+                    {isEditing ? (
+                      <form id={`edit-form-${admin.id}`} onSubmit={(e) => handleEditSubmit(e, admin.id)} className="space-y-2">
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          className="w-full max-w-[200px] px-3 py-1.5 bg-white border border-[#3B8A49] rounded-lg text-xs font-mono outline-hidden block"
+                          required
+                        />
+                        <div className="relative max-w-[200px]">
+                          <input
+                            type={showEditPassword ? "text" : "password"}
+                            value={editPassword}
+                            onChange={(e) => setEditPassword(e.target.value)}
+                            placeholder="(Nouveau mot de passe)"
+                            className="w-full px-3 py-1.5 pr-8 bg-white border border-[#3B8A49] rounded-lg text-xs font-mono outline-hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowEditPassword(!showEditPassword)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
+                          >
+                            {showEditPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="font-mono text-muted-foreground mt-1.5">{admin.email}</div>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4 align-top">
+                    <span
+                      className={`inline-block mt-1 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold uppercase ${
+                        admin.role === "super_admin"
+                          ? "bg-amber-100 text-amber-800"
+                          : admin.role === "admin"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
                     >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                      {admin.role.replace("_", " ")}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 font-mono text-muted-foreground text-[11px] align-top">
+                    <div className="mt-1.5">{admin.lastLogin || "Récemment"}</div>
+                  </td>
+                  <td className="py-3.5 px-4 text-right align-top">
+                    <div className="flex items-center justify-end gap-1 mt-1">
+                      {isEditing ? (
+                        <>
+                          <button
+                            type="submit"
+                            form={`edit-form-${admin.id}`}
+                            className="p-1.5 rounded-lg text-[#3B8A49] hover:bg-green-50 transition cursor-pointer"
+                            title="Sauvegarder"
+                          >
+                            <CheckCircle2 size={16} />
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:bg-gray-100 transition cursor-pointer"
+                            title="Annuler"
+                          >
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {canEdit && (
+                            <button
+                              onClick={() => startEdit(admin)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-[#3B8A49] hover:bg-green-50 transition cursor-pointer"
+                              title="Modifier les identifiants"
+                            >
+                              <Edit2 size={15} />
+                            </button>
+                          )}
+                          {isSuperAdmin && admin.role !== "super_admin" && (
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Supprimer l'accès de l'administrateur « ${admin.name} » ?`)) {
+                                  deleteAdmin(admin.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                              title="Supprimer l'administrateur"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
