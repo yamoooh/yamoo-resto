@@ -566,16 +566,7 @@ const getInitialCustomers = (): CustomerData[] => [
   { id: "c-4", fullName: "Christelle Ngono", email: "christelle.ngono@yahoo.fr", phone: "+237 694 55 66 77", city: "Douala", district: "Kotto", createdAt: "2026-09-28", ordersCount: 3, status: "active" },
 ];
 
-const getInitialAdmins = (): AdminUser[] => [
-  {
-    id: "adm-1",
-    name: "Direction YAMOOH",
-    email: "admin@yamooh.com",
-    role: "super_admin",
-    createdAt: "2026-09-01",
-    lastLogin: "2026-10-05 14:30",
-  }
-];
+const getInitialAdmins = (): AdminUser[] => [];
 
 const getInitialLogs = (): ActivityLogItem[] => [
   { id: "log-1", timestamp: "2026-10-05 14:30", adminName: "Direction YAMOOH", actionType: "login", targetEntity: "Système", details: "Connexion réussie au Back-Office YAMOOH" },
@@ -670,7 +661,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [admins, setAdmins] = useState<AdminUser[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ADMINS);
-      return saved ? JSON.parse(saved) : getInitialAdmins();
+      if (saved) {
+        const parsed: AdminUser[] = JSON.parse(saved);
+        return parsed.filter((a) => !(a.id === "adm-1" && !a.password));
+      }
+      return getInitialAdmins();
     } catch {
       return getInitialAdmins();
     }
