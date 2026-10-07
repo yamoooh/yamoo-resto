@@ -23,28 +23,40 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const needsInitialSetup = false; 
 
   const fetchAdminProfile = async (userId: string, email: string) => {
-    // Récupérer le profil depuis la table admins
-    const { data, error } = await supabase
-      .from("admins")
-      .select("*")
-      .eq("email", email)
-      .single();
+    try {
+      // Récupérer le profil depuis la table admins
+      const { data, error } = await supabase
+        .from("admins")
+        .select("*")
+        .eq("email", email)
+        .single();
 
-    if (data) {
-      setCurrentAdmin({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        createdAt: data.created_at,
-        lastLogin: data.last_login,
-        avatar: data.avatar,
-      });
-      
-      // Mettre à jour last_login
-      await supabase.from("admins").update({ last_login: new Date().toISOString() }).eq("id", data.id);
-    } else {
-      // S'il n'y a pas de profil mais que l'auth a réussi, on fallback sur un compte par défaut
+      if (data) {
+        setCurrentAdmin({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          createdAt: data.created_at,
+          lastLogin: data.last_login,
+          avatar: data.avatar,
+        });
+        
+        // Mettre à jour last_login
+        await supabase.from("admins").update({ last_login: new Date().toISOString() }).eq("id", data.id);
+      } else {
+        // S'il n'y a pas de profil mais que l'auth a réussi, on fallback sur un compte par défaut
+        setCurrentAdmin({
+          id: userId,
+          name: email.split('@')[0],
+          email: email,
+          role: "admin",
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération du profil:", err);
+      // Fallback de sécurité
       setCurrentAdmin({
         id: userId,
         name: email.split('@')[0],
@@ -52,12 +64,17 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         role: "admin",
         createdAt: new Date().toISOString(),
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Vérifier la session initiale
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       if (session?.user) {
         fetchAdminProfile(session.user.id, session.user.email!);
       } else {
@@ -67,15 +84,17 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Écouter les changements d'état
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
       if (session?.user) {
         await fetchAdminProfile(session.user.id, session.user.email!);
       } else {
         setCurrentAdmin(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
