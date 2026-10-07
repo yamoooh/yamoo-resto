@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AdminUser, useData } from "./DataContext";
+import { supabase } from "../lib/supabaseClient";
+import { AdminUser } from "./DataContext";
 
 interface AdminAuthContextType {
   currentAdmin: AdminUser | null;
@@ -8,87 +9,111 @@ interface AdminAuthContextType {
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   setupFirstAdmin: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  resetPassword: (email: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string, newPass?: string) => Promise<{ success: boolean; error?: string }>;
   hasPermission: (permission: "catalog" | "media" | "content" | "marketing" | "clients" | "admins") => boolean;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | null>(null);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { admins, addAdmin, updateAdminPassword, logActivity } = useData();
-  const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(() => {
-    try {
-      const saved = localStorage.getItem("yamooh_current_admin_user");
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const needsInitialSetup = admins.length === 0;
+  // Pour la rétrocompatibilité ou une migration future, on considère que la base n'est jamais vide.
+  const needsInitialSetup = false; 
+
+  const fetchAdminProfile = async (userId: string, email: string) => {
+    // Récupérer le profil depuis la table admins
+    const { data, error } = await supabase
+      .from("admins")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (data) {
+      setCurrentAdmin({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        createdAt: data.created_at,
+        lastLogin: data.last_login,
+        avatar: data.avatar,
+      });
+      
+      // Mettre à jour last_login
+      await supabase.from("admins").update({ last_login: new Date().toISOString() }).eq("id", data.id);
+    } else {
+      // S'il n'y a pas de profil mais que l'auth a réussi, on fallback sur un compte par défaut
+      setCurrentAdmin({
+        id: userId,
+        name: email.split('@')[0],
+        email: email,
+        role: "admin",
+        createdAt: new Date().toISOString(),
+      });
+    }
+  };
 
   useEffect(() => {
-    if (currentAdmin) {
-      localStorage.setItem("yamooh_current_admin_user", JSON.stringify(currentAdmin));
-      localStorage.setItem("yamooh_current_admin_name", currentAdmin.name);
-    } else {
-      localStorage.removeItem("yamooh_current_admin_user");
-      localStorage.removeItem("yamooh_current_admin_name");
-    }
-  }, [currentAdmin]);
+    // Vérifier la session initiale
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchAdminProfile(session.user.id, session.user.email!);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Écouter les changements d'état
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        await fetchAdminProfile(session.user.id, session.user.email!);
+      } else {
+        setCurrentAdmin(null);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const login = async (email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
-    const found = admins.find((a) => a.email.toLowerCase() === email.toLowerCase());
-    if (!found) {
-      return { success: false, error: "Identifiants administrateur incorrects." };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: pass,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
-    if (found.password && found.password !== pass) {
-      return { success: false, error: "Mot de passe administrateur incorrect." };
-    }
-    const updated = { ...found, lastLogin: new Date().toLocaleString("fr-FR") };
-    setCurrentAdmin(updated);
-    logActivity("login", "Session Admin", `Connexion de ${found.name} (${found.role})`);
     return { success: true };
   };
 
   const setupFirstAdmin = async (name: string, email: string, pass: string): Promise<{ success: boolean; error?: string }> => {
-    if (!name || !email) {
-      return { success: false, error: "Veuillez renseigner tous les champs obligatoires." };
-    }
-    const newAdmin: AdminUser = {
-      id: "adm-root",
-      name,
-      email,
-      password: pass,
-      role: "super_admin",
-      createdAt: new Date().toISOString().split("T")[0],
-      lastLogin: new Date().toLocaleString("fr-FR"),
-    };
-    addAdmin(newAdmin);
-    setCurrentAdmin(newAdmin);
-    logActivity("create", "Super Administrateur", `Initialisation du premier compte Super Admin (${name})`);
-    return { success: true };
+    return { success: false, error: "Non supporté via Supabase." };
   };
 
-  const resetPassword = async (email: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
-    if (!email || !newPass) {
-      return { success: false, error: "Veuillez renseigner une adresse email et un nouveau mot de passe." };
-    }
-    const exists = admins.some((a) => a.email.toLowerCase() === email.toLowerCase());
-    if (!exists) {
-      return { success: false, error: "Aucun compte administrateur n'est associé à cette adresse e-mail." };
-    }
-    const ok = updateAdminPassword(email, newPass);
-    if (ok) {
+  const resetPassword = async (email: string, newPass?: string): Promise<{ success: boolean; error?: string }> => {
+    if (!newPass) {
+      // Étape 1 : Demande de réinitialisation par email
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin/reset-password`,
+      });
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } else {
+      // Étape 2 : Mise à jour du mot de passe (nécessite d'être connecté via le lien)
+      const { error } = await supabase.auth.updateUser({ password: newPass });
+      if (error) return { success: false, error: error.message };
       return { success: true };
     }
-    return { success: false, error: "Erreur lors de la mise à jour du mot de passe." };
   };
 
-  const logout = () => {
-    if (currentAdmin) {
-      logActivity("login", "Session Admin", `Déconnexion de ${currentAdmin.name}`);
-    }
+  const logout = async () => {
+    await supabase.auth.signOut();
     setCurrentAdmin(null);
   };
 
@@ -114,7 +139,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         hasPermission,
       }}
     >
-      {children}
+      {!loading && children}
     </AdminAuthContext.Provider>
   );
 };

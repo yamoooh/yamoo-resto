@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Shield, ArrowRight, Lock, Mail, AlertCircle, Eye, EyeOff, Key, Hash } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Shield, ArrowRight, Lock, Mail, AlertCircle, Eye, EyeOff, Key, CheckCircle } from "lucide-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
-import { useData } from "../../contexts/DataContext";
+import { supabase } from "../../lib/supabaseClient";
 
 export const AdminLogin: React.FC = () => {
-  const { login, resetPassword } = useAdminAuth();
-  const { admins } = useData();
+  const { login, resetPassword, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [mode, setMode] = useState<"login" | "forgot" | "verify" | "reset">("login");
+  const [mode, setMode] = useState<"login" | "forgot" | "sent" | "reset">("login");
 
   // Champs de connexion
   const [email, setEmail] = useState("");
@@ -18,13 +18,32 @@ export const AdminLogin: React.FC = () => {
 
   // Champs mot de passe oublié
   const [resetEmail, setResetEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Si déjà authentifié en mode normal, rediriger (sauf si on est en train de reset)
+    if (isAuthenticated && mode !== "reset") {
+      navigate("/admin");
+    }
+
+    // Vérifier si on vient d'un lien de réinitialisation Supabase (présence d'un hash avec type=recovery)
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setMode("reset");
+        setSuccess("Lien valide. Veuillez définir votre nouveau mot de passe.");
+      }
+    });
+
+    // Optionnel : vérifier manuellement l'URL
+    if (window.location.hash.includes("type=recovery")) {
+      setMode("reset");
+    }
+  }, [isAuthenticated, navigate, mode]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,34 +65,16 @@ export const AdminLogin: React.FC = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    
-    // Vérifier si l'email existe dans la base
-    const exists = admins.some((a) => a.email.toLowerCase() === resetEmail.toLowerCase());
-    if (!exists) {
-      setError("Aucun compte administrateur n'est associé à cette adresse e-mail.");
-      return;
-    }
-
     setLoading(true);
-    // Simulation de l'envoi d'un email
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess("Un code de vérification a été envoyé à votre adresse e-mail.");
-      setMode("verify");
-    }, 1500);
-  };
 
-  const handleVerifySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
+    // Envoi de l'email via Supabase Auth
+    const res = await resetPassword(resetEmail);
+    setLoading(false);
 
-    // Simulation : Le code attendu est 123456 pour la démo
-    if (verificationCode === "123456") {
-      setSuccess("Code valide. Veuillez saisir votre nouveau mot de passe.");
-      setMode("reset");
+    if (res.success) {
+      setMode("sent");
     } else {
-      setError("Code de vérification incorrect.");
+      setError(res.error || "Erreur lors de l'envoi de l'email.");
     }
   };
 
@@ -88,16 +89,16 @@ export const AdminLogin: React.FC = () => {
     }
 
     setLoading(true);
-    const res = await resetPassword(resetEmail, newPassword);
+    // Mise à jour du mot de passe
+    const res = await resetPassword("", newPassword);
     setLoading(false);
 
     if (res.success) {
-      setSuccess("Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.");
-      setMode("login");
-      setEmail(resetEmail);
-      setPassword("");
-      setVerificationCode("");
-      setNewPassword("");
+      setSuccess("Mot de passe mis à jour avec succès.");
+      // Redirection après 2 secondes
+      setTimeout(() => {
+        navigate("/admin");
+      }, 2000);
     } else {
       setError(res.error || "Erreur lors de la mise à jour.");
     }
@@ -116,7 +117,7 @@ export const AdminLogin: React.FC = () => {
             />
           </div>
           <span className="text-[10px] font-mono uppercase px-3 py-1 rounded-full bg-[#EBF4EE] text-[#3B8A49] font-bold">
-            Espace Sécurisé
+            Espace Sécurisé Supabase
           </span>
           <h1 className="text-2xl font-display font-black text-[#1E3A2B] mt-2">
             Back-Office YAMOOH
@@ -124,7 +125,7 @@ export const AdminLogin: React.FC = () => {
           <p className="text-xs text-muted-foreground mt-1">
             {mode === "login" && "Connectez-vous pour administrer les contenus"}
             {mode === "forgot" && "Récupération de compte"}
-            {mode === "verify" && "Vérification de sécurité"}
+            {mode === "sent" && "E-mail envoyé"}
             {mode === "reset" && "Nouveau mot de passe"}
           </p>
         </div>
@@ -214,7 +215,7 @@ export const AdminLogin: React.FC = () => {
         {mode === "forgot" && (
           <form onSubmit={handleForgotSubmit} className="space-y-4">
             <p className="text-xs text-muted-foreground mb-4">
-              Saisissez votre adresse e-mail. Un code de réinitialisation vous sera envoyé pour des raisons de sécurité.
+              Saisissez votre adresse e-mail. Un lien de réinitialisation sécurisé vous sera envoyé.
             </p>
             <div>
               <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
@@ -238,7 +239,7 @@ export const AdminLogin: React.FC = () => {
               disabled={loading}
               className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
             >
-              <span>{loading ? "Envoi en cours..." : "Recevoir le code"}</span>
+              <span>{loading ? "Envoi en cours..." : "Recevoir le lien"}</span>
             </button>
 
             <div className="text-center mt-4">
@@ -258,53 +259,27 @@ export const AdminLogin: React.FC = () => {
           </form>
         )}
 
-        {mode === "verify" && (
-          <form onSubmit={handleVerifySubmit} className="space-y-4">
-            <p className="text-xs text-muted-foreground mb-4">
-              Veuillez saisir le code à 6 chiffres envoyé à l'adresse <strong>{resetEmail}</strong>.
-              <br/><br/>
-              <em>(Pour cette version de démonstration, le code est : <strong>123456</strong>)</em>
-            </p>
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1.5 font-mono">
-                Code de vérification
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="123456"
-                  className="w-full pl-10 pr-4 py-3 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-sm font-medium outline-hidden text-center tracking-widest"
-                  required
-                />
-                <Hash size={16} className="absolute left-3.5 top-3.5 text-muted-foreground" />
+        {mode === "sent" && (
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
+                <CheckCircle size={32} className="text-[#3B8A49]" />
               </div>
             </div>
-
-            <button
-              type="submit"
-              className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
-            >
-              <span>Vérifier le code</span>
-            </button>
-
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("forgot");
-                  setError("");
-                  setSuccess("");
-                }}
-                className="text-xs text-muted-foreground hover:text-[#1E3A2B] flex items-center justify-center gap-1 mx-auto cursor-pointer"
-              >
-                <ArrowRight size={14} className="rotate-180" />
-                <span>Modifier l'adresse e-mail</span>
-              </button>
+            <div>
+              <h3 className="font-bold text-[#1E3A2B] mb-2">E-mail envoyé !</h3>
+              <p className="text-xs text-muted-foreground">
+                Si un compte existe pour <strong>{resetEmail}</strong>, vous allez recevoir un lien de réinitialisation dans quelques instants.
+              </p>
             </div>
-          </form>
+            
+            <button
+              onClick={() => setMode("login")}
+              className="w-full bg-[#1E3A2B] hover:bg-[#162B20] text-white py-3.5 rounded-xl font-bold text-sm uppercase tracking-wider transition shadow-soft cursor-pointer"
+            >
+              Retour à la connexion
+            </button>
+          </div>
         )}
 
         {mode === "reset" && (
