@@ -78,7 +78,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       // Si l'URL contient type=recovery (venant d'un email de reset)
       if (window.location.href.includes("type=recovery") && !window.location.pathname.includes("/admin/login")) {
-        window.location.href = "/admin/login#type=recovery";
+        // Préserver l'intégralité du hash (#access_token=...&type=recovery)
+        window.location.href = "/admin/login" + window.location.hash;
         return;
       }
 
@@ -96,7 +97,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (event === "PASSWORD_RECOVERY") {
         // Forcer la redirection vers la page de login admin en mode reset
         if (!window.location.pathname.includes("/admin/login")) {
-          window.location.href = "/admin/login#type=recovery";
+          window.location.href = "/admin/login" + window.location.hash;
           return;
         }
       }
