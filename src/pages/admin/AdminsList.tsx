@@ -1,392 +1,325 @@
-import React, { useState } from "react";
-import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock, Eye, EyeOff, Edit2, Upload } from "lucide-react";
-import { useData, AdminUser } from "../../contexts/DataContext";
+import React, { useState, useEffect } from "react";
+import { Shield, Plus, Trash2, UserPlus, Save, X, CheckCircle2, Lock, Eye, EyeOff, Edit2, Upload, AlertCircle } from "lucide-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
+import { supabase } from "../../integrations/supabase/client";
 
 export const AdminsList: React.FC = () => {
-  const { admins, addAdmin, deleteAdmin, updateAdminProfile } = useData();
   const { currentAdmin } = useAdminAuth();
   
+  // States
+  const [admins, setAdmins] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // My Profile Edition
+  const [myProfileName, setMyProfileName] = useState(currentAdmin?.name || "");
+  const [myNewPassword, setMyNewPassword] = useState("");
+  const [showMyPassword, setShowMyPassword] = useState(false);
+
+  // New Admin Creation
   const [isCreating, setIsCreating] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  // Champs création
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<AdminUser["role"]>("editor");
-
-  // Champs édition
-  const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editPassword, setEditPassword] = useState("");
-  const [editAvatar, setEditAvatar] = useState("");
-  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState("editor");
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const isSuperAdmin = currentAdmin?.role === "super_admin";
 
-  const handleCreateAdmin = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const fetchAdmins = async () => {
+    try {
+      const { data, error } = await supabase.from("admins").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      setAdmins(data || []);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateMyProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    addAdmin({
-      name,
-      email,
-      password: password || undefined,
-      role,
-    });
-    setName("");
-    setEmail("");
-    setPassword("");
-    setIsCreating(false);
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      if (myNewPassword) {
+        if (myNewPassword.length < 6) {
+          throw new Error("Le mot de passe doit contenir au moins 6 caractères.");
+        }
+        const { error: authErr } = await supabase.auth.updateUser({ password: myNewPassword });
+        if (authErr) throw authErr;
+      }
+
+      if (myProfileName !== currentAdmin?.name) {
+        const { error: dbErr } = await supabase.from("admins").update({ name: myProfileName }).eq("id", currentAdmin?.id);
+        if (dbErr) throw dbErr;
+      }
+
+      setSuccess("Votre profil a été mis à jour avec succès.");
+      setMyNewPassword("");
+      fetchAdmins();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
-  const startEdit = (admin: AdminUser) => {
-    setEditingId(admin.id);
-    setEditName(admin.name);
-    setEditEmail(admin.email);
-    setEditAvatar(admin.avatar || "");
-    setEditPassword(""); // Par défaut vide
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditName("");
-    setEditEmail("");
-    setEditAvatar("");
-    setEditPassword("");
-  };
-
-  const handleEditSubmit = (e: React.FormEvent, adminId: string) => {
+  const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateAdminProfile(adminId, {
-      name: editName,
-      email: editEmail,
-      avatar: editAvatar || undefined,
-      ...(editPassword ? { password: editPassword } : {}),
-    });
-    cancelEdit();
+    setError(null);
+    setSuccess(null);
+
+    if (!isSuperAdmin) {
+      setError("Seul un super administrateur peut créer d'autres comptes.");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError("Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+
+    try {
+      // Use the custom RPC deployed via MCP to securely create a new Auth user + Admin record
+      const { error: rpcErr } = await supabase.rpc("create_admin_user", {
+        new_email: newEmail.trim(),
+        new_password: newPassword,
+        new_name: newName.trim(),
+        new_role: newRole
+      });
+
+      if (rpcErr) throw rpcErr;
+
+      setSuccess(`L'administrateur ${newName} a été créé avec succès ! Il peut se connecter immédiatement.`);
+      setIsCreating(false);
+      setNewName("");
+      setNewEmail("");
+      setNewPassword("");
+      fetchAdmins();
+      setTimeout(() => setSuccess(null), 4000);
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de la création de l'administrateur.");
+    }
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditAvatar(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleDeleteAdmin = async (id: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet administrateur ? Il perdra définitivement l'accès.")) return;
+    try {
+      // Pour une vraie suppression, il faudrait supprimer de auth.users (necessite backend). 
+      // Ici, on le supprime de "admins" pour lui bloquer l'accès applicatif.
+      const { error } = await supabase.from("admins").delete().eq("id", id);
+      if (error) throw error;
+      setSuccess("Administrateur supprimé avec succès.");
+      fetchAdmins();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-16">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#E3ECE6] pb-4">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-display font-black text-[#1E3A2B]">
-              Comptes Administrateurs & Privilèges
-            </h1>
-            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#EBF4EE] text-[#3B8A49]">
-              {admins.length} comptes
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Gérez les accès, rôles et personnalisez votre profil administrateur
-          </p>
+          <h1 className="text-2xl font-display font-black tracking-tight text-[#1E3A2B]">Profil & Équipe</h1>
+          <p className="text-sm text-muted-foreground mt-1">Gérez votre profil et les accès au back-office</p>
         </div>
-
-        {isSuperAdmin && (
-          <button
-            onClick={() => setIsCreating(true)}
-            className="inline-flex items-center gap-2 bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-5 py-3 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-soft cursor-pointer"
-          >
-            <UserPlus size={15} />
-            <span>+ Ajouter un administrateur</span>
-          </button>
-        )}
       </div>
 
-      {/* FORMULAIRE NOUVEL ADMIN */}
-      {isCreating && (
-        <div className="bg-white border-2 border-[#3B8A49] rounded-3xl p-6 shadow-card space-y-4 animate-in fade-in">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-[#3B8A49]">
-              Créer un nouveau compte administrateur
-            </h3>
-            <button
-              onClick={() => setIsCreating(false)}
-              className="p-1 rounded-lg text-muted-foreground hover:bg-gray-100 cursor-pointer"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          <form onSubmit={handleCreateAdmin} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
-                Nom complet *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Chef Traiteur"
-                required
-                className="w-full px-4 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-medium outline-hidden"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
-                Adresse E-mail *
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="chef@yamooh.com"
-                required
-                className="w-full px-4 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-medium outline-hidden"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
-                Mot de passe *
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full pl-3 pr-9 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-medium outline-hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
-                >
-                  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-[#1E3A2B] mb-1 font-mono">
-                Rôle & Permissions *
-              </label>
-              <select
-                value={role}
-                onChange={(e: any) => setRole(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E3ECE6] rounded-xl text-xs font-bold outline-hidden cursor-pointer"
-              >
-                <option value="admin">Administrateur (Gestion complète)</option>
-                <option value="editor">Éditeur Catalogue (Produits & Médias)</option>
-                <option value="marketing">Marketing (Promotions & Textes)</option>
-              </select>
-            </div>
-
-            <div className="sm:col-span-2 lg:col-span-4 flex justify-end pt-2 border-t border-[#E3ECE6]">
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition shadow-xs cursor-pointer"
-              >
-                <Save size={14} />
-                <span>Créer le compte</span>
-              </button>
-            </div>
-          </form>
+      {error && (
+        <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center gap-2">
+          <AlertCircle size={16} />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="p-4 bg-[#EBF4EE] text-[#2F6F3B] rounded-xl border border-[#3B8A49]/30 flex items-center gap-2">
+          <CheckCircle2 size={16} />
+          <span className="text-sm">{success}</span>
         </div>
       )}
 
-      {/* LISTE DES ADMINS */}
-      <div className="bg-white border border-[#E3ECE6] rounded-3xl shadow-2xs overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-[#E3ECE6] bg-[#FAF8F5]/80 text-[10.5px] font-mono uppercase font-bold text-muted-foreground">
-              <th className="py-3.5 px-4 w-[300px]">Administrateur</th>
-              <th className="py-3.5 px-4">Coordonnées & Connexion</th>
-              <th className="py-3.5 px-4">Rôle</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#E3ECE6] text-xs">
-            {admins.map((admin) => {
-              const isEditing = editingId === admin.id;
-              // On permet l'édition de son PROPRE compte ou de n'importe quel compte si super_admin
-              const canEdit = isSuperAdmin || currentAdmin?.id === admin.id;
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* MON PROFIL */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E3ECE6] shadow-sm overflow-hidden p-5">
+            <h2 className="font-bold text-[#1E3A2B] mb-4 flex items-center gap-2">
+              <Shield size={18} className="text-[#3B8A49]" />
+              Mon Profil
+            </h2>
+            <form onSubmit={handleUpdateMyProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Nom complet</label>
+                <input
+                  type="text"
+                  required
+                  value={myProfileName}
+                  onChange={(e) => setMyProfileName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] focus:ring-1 focus:ring-[#3B8A49] transition outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Email (Lecture seule)</label>
+                <input
+                  type="email"
+                  disabled
+                  value={currentAdmin?.email || ""}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-[#E3ECE6] bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
+                />
+              </div>
+              <div className="pt-2 border-t border-[#E3ECE6]">
+                <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Nouveau mot de passe</label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-2.5 text-muted-foreground" />
+                  <input
+                    type={showMyPassword ? "text" : "password"}
+                    value={myNewPassword}
+                    onChange={(e) => setMyNewPassword(e.target.value)}
+                    placeholder="Laisser vide pour ne pas modifier"
+                    className="w-full pl-9 pr-10 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] focus:ring-1 focus:ring-[#3B8A49] transition outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMyPassword(!showMyPassword)}
+                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-[#1E3A2B]"
+                  >
+                    {showMyPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-[#3B8A49] hover:bg-[#2F6F3B] text-white py-2 rounded-xl text-sm font-bold shadow-xs transition flex items-center justify-center gap-2 mt-4"
+              >
+                <Save size={16} /> Mettre à jour mon profil
+              </button>
+            </form>
+          </div>
+        </div>
 
-              return (
-                <tr key={admin.id} className={`transition ${isEditing ? 'bg-[#F2F9F4]' : 'hover:bg-[#FAF8F5]/50'}`}>
-                  <td className="py-4 px-4 align-top">
-                    {isEditing ? (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <label className="relative flex-shrink-0 cursor-pointer group">
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-[#3B8A49] text-white flex items-center justify-center font-bold text-lg border-2 border-transparent group-hover:border-[#3B8A49] transition">
-                              {editAvatar ? (
-                                <img src={editAvatar} alt="Avatar" className="w-full h-full object-cover" />
-                              ) : (
-                                editName.charAt(0) || admin.name.charAt(0)
-                              )}
-                            </div>
-                            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                              <Upload size={14} className="text-white" />
-                            </div>
-                            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                          </label>
-                          <div className="flex-1">
-                            <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Nom complet</label>
-                            <input
-                              type="text"
-                              value={editName}
-                              onChange={(e) => setEditName(e.target.value)}
-                              className="w-full px-2 py-1 bg-white border border-[#3B8A49] rounded-md text-xs font-bold text-[#1E3A2B] outline-hidden"
-                              required
-                              form={`edit-form-${admin.id}`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex-shrink-0 rounded-full overflow-hidden bg-[#3B8A49] text-white flex items-center justify-center font-bold text-base shadow-sm">
-                          {admin.avatar ? (
-                            <img src={admin.avatar} alt={admin.name} className="w-full h-full object-cover" />
-                          ) : (
-                            admin.name.charAt(0)
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-bold text-[#1E3A2B] text-sm">{admin.name}</div>
-                          {currentAdmin?.id === admin.id && (
-                            <span className="text-[9px] uppercase font-bold text-[#3B8A49] bg-[#EBF4EE] px-1.5 py-0.5 rounded-full mt-0.5 inline-block">
-                              C'est vous
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </td>
+        {/* LISTE DES ADMINISTRATEURS */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-2xl border border-[#E3ECE6] shadow-sm overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-[#E3ECE6] flex items-center justify-between">
+              <h2 className="font-bold text-[#1E3A2B] flex items-center gap-2">
+                <Shield size={18} className="text-[#3B8A49]" />
+                Équipe Administrateurs
+              </h2>
+              {isSuperAdmin && !isCreating && (
+                <button
+                  onClick={() => setIsCreating(true)}
+                  className="bg-[#1E3A2B] hover:bg-[#15271d] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+                >
+                  <UserPlus size={14} />
+                  Nouvel Admin
+                </button>
+              )}
+            </div>
 
-                  <td className="py-4 px-4 align-top">
-                    {isEditing ? (
-                      <form id={`edit-form-${admin.id}`} onSubmit={(e) => handleEditSubmit(e, admin.id)} className="space-y-2">
-                        <div>
-                          <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Email</label>
-                          <input
-                            type="email"
-                            value={editEmail}
-                            onChange={(e) => setEditEmail(e.target.value)}
-                            className="w-full max-w-[220px] px-2 py-1 bg-white border border-[#3B8A49] rounded-md text-xs font-mono outline-hidden block"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Nouveau mot de passe</label>
-                          <div className="relative max-w-[220px]">
-                            <input
-                              type={showEditPassword ? "text" : "password"}
-                              value={editPassword}
-                              onChange={(e) => setEditPassword(e.target.value)}
-                              placeholder="(Laisser vide pour ne pas changer)"
-                              className="w-full px-2 py-1 pr-8 bg-white border border-[#3B8A49] rounded-md text-xs font-mono outline-hidden"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowEditPassword(!showEditPassword)}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#1E3A2B] cursor-pointer"
-                            >
-                              {showEditPassword ? <EyeOff size={12} /> : <Eye size={12} />}
-                            </button>
-                          </div>
-                        </div>
-                      </form>
-                    ) : (
-                      <div className="space-y-1 mt-1">
-                        <div className="font-mono text-muted-foreground flex items-center gap-1.5">
-                          <Mail size={12} />
-                          <span>{admin.email}</span>
-                        </div>
-                        <div className="text-[10px] text-muted-foreground/70 flex items-center gap-1.5">
-                          <Lock size={12} />
-                          <span>Dernière connexion: {admin.lastLogin || "Récemment"}</span>
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                  
-                  <td className="py-4 px-4 align-top">
-                    <span
-                      className={`inline-block mt-2 px-2.5 py-1 rounded-full font-mono text-[10px] font-bold uppercase ${
-                        admin.role === "super_admin"
-                          ? "bg-amber-100 text-amber-800"
-                          : admin.role === "admin"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {admin.role.replace("_", " ")}
-                    </span>
-                  </td>
-                  
-                  <td className="py-4 px-4 text-right align-top">
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="submit"
-                            form={`edit-form-${admin.id}`}
-                            className="p-1.5 rounded-lg text-white bg-[#3B8A49] hover:bg-[#2F6F3B] transition shadow-xs cursor-pointer flex items-center gap-1 px-3"
-                            title="Sauvegarder"
-                          >
-                            <Save size={14} />
-                            <span className="font-bold">Sauvegarder</span>
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:bg-gray-100 transition cursor-pointer"
-                            title="Annuler"
-                          >
-                            <X size={16} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          {canEdit && (
-                            <button
-                              onClick={() => startEdit(admin)}
-                              className="p-2 rounded-lg text-muted-foreground hover:text-[#3B8A49] hover:bg-green-50 transition cursor-pointer flex items-center gap-1.5 border border-transparent hover:border-green-200"
-                              title="Modifier mon profil"
-                            >
-                              <Edit2 size={14} />
-                              <span className="font-bold text-[10px] uppercase">Modifier</span>
-                            </button>
-                          )}
-                          {isSuperAdmin && admin.role !== "super_admin" && (
-                            <button
-                              onClick={() => {
-                                if (window.confirm(`Supprimer l'accès de l'administrateur « ${admin.name} » ?`)) {
-                                  deleteAdmin(admin.id);
-                                }
-                              }}
-                              className="p-2 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                              title="Supprimer l'administrateur"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </>
-                      )}
+            {isCreating && (
+              <div className="p-5 border-b border-[#E3ECE6] bg-[#FAF8F5]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-[#1E3A2B]">Créer un nouvel accès Back-Office</h3>
+                  <button onClick={() => setIsCreating(false)} className="text-muted-foreground hover:text-[#1E3A2B]">
+                    <X size={18} />
+                  </button>
+                </div>
+                <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Nom complet *</label>
+                    <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Email de connexion *</label>
+                    <input type="email" required value={newEmail} onChange={e => setNewEmail(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Mot de passe *</label>
+                    <div className="relative">
+                      <Lock size={14} className="absolute left-3 top-2.5 text-muted-foreground" />
+                      <input type={showNewPassword ? "text" : "password"} required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full pl-9 pr-10 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] outline-none" />
+                      <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-muted-foreground">
+                        {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
                     </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#1E3A2B] mb-1.5">Rôle</label>
+                    <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full px-3 py-2 text-sm rounded-xl border border-[#E3ECE6] focus:border-[#3B8A49] outline-none bg-white">
+                      <option value="editor">Éditeur (Limité)</option>
+                      <option value="super_admin">Super Admin (Accès total)</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2 pt-2">
+                    <button type="submit" className="bg-[#3B8A49] hover:bg-[#2F6F3B] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-xs transition w-full sm:w-auto">
+                      Créer l'accès
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-[#FAF8F5] text-[#1E3A2B] font-bold border-b border-[#E3ECE6]">
+                  <tr>
+                    <th className="p-4">Administrateur</th>
+                    <th className="p-4">Rôle</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E3ECE6]">
+                  {loading ? (
+                    <tr><td colSpan={3} className="p-4 text-center text-muted-foreground">Chargement...</td></tr>
+                  ) : admins.map((admin) => (
+                    <tr key={admin.id} className="hover:bg-gray-50/50 transition">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#EBF4EE] text-[#3B8A49] flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                            {admin.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-[#1E3A2B] text-[13px]">{admin.name} {admin.id === currentAdmin?.id && <span className="ml-2 text-[10px] bg-[#EBF4EE] text-[#3B8A49] px-2 py-0.5 rounded-full">Moi</span>}</p>
+                            <p className="text-[11px] text-muted-foreground">{admin.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                          admin.role === "super_admin" 
+                            ? "bg-[#1E3A2B] text-white" 
+                            : "bg-[#EBF4EE] text-[#3B8A49]"
+                        }`}>
+                          {admin.role === "super_admin" ? "Super Admin" : "Éditeur"}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        {isSuperAdmin && admin.id !== currentAdmin?.id && (
+                          <button
+                            onClick={() => handleDeleteAdmin(admin.id)}
+                            className="p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="Révoquer l'accès"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
