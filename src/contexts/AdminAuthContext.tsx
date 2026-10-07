@@ -78,6 +78,11 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       // Si l'URL contient type=recovery (venant d'un email de reset)
       if (window.location.href.includes("type=recovery")) {
+        // Ignorer si l'utilisateur est sur la page de reset du site public
+        if (window.location.pathname.includes("/reset-password")) {
+          return;
+        }
+        
         sessionStorage.setItem("supabase_recovery", "true");
         if (!window.location.pathname.includes("/admin/login")) {
           // Préserver l'intégralité du hash (#access_token=...&type=recovery)
@@ -98,6 +103,10 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (!mounted) return;
       
       if (event === "PASSWORD_RECOVERY") {
+        if (window.location.pathname.includes("/reset-password")) {
+          return; // Ne pas rediriger vers admin si c'est un client public
+        }
+        
         sessionStorage.setItem("supabase_recovery", "true");
         // Forcer la redirection vers la page de login admin en mode reset
         if (!window.location.pathname.includes("/admin/login")) {
