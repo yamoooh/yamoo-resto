@@ -26,23 +26,27 @@ export const AdminLogin: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Vérifier si un flag de récupération de mot de passe est actif dans la session
+    const isRecovering = window.location.hash.includes("type=recovery") || sessionStorage.getItem("supabase_recovery") === "true";
+    
+    if (isRecovering && mode !== "reset") {
+      setMode("reset");
+    }
+
     // Si déjà authentifié en mode normal, rediriger (sauf si on est en train de reset)
-    if (isAuthenticated && mode !== "reset") {
+    if (isAuthenticated && !isRecovering && mode !== "reset") {
       navigate("/admin");
     }
 
-    // Vérifier si on vient d'un lien de réinitialisation Supabase (présence d'un hash avec type=recovery)
+    // Vérifier si on vient d'un lien de réinitialisation Supabase
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
+        sessionStorage.setItem("supabase_recovery", "true");
         setMode("reset");
         setSuccess("Lien valide. Veuillez définir votre nouveau mot de passe.");
       }
     });
 
-    // Optionnel : vérifier manuellement l'URL
-    if (window.location.hash.includes("type=recovery")) {
-      setMode("reset");
-    }
   }, [isAuthenticated, navigate, mode]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -94,6 +98,7 @@ export const AdminLogin: React.FC = () => {
     setLoading(false);
 
     if (res.success) {
+      sessionStorage.removeItem("supabase_recovery");
       setSuccess("Mot de passe mis à jour avec succès.");
       // Redirection après 2 secondes
       setTimeout(() => {
